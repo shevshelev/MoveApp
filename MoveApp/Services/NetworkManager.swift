@@ -9,74 +9,57 @@ import Foundation
 
 protocol NetworkManagerProtocol {
     func fetchMovie(for type: NetworkRequestType) async throws -> Any
-//    func fetchMovies(from endpoint: MovieListEndpoint, completion: @escaping (Result<MovieResponce, MovieError>) -> ())
-//    func fetchMovie(id: Int, completion: @escaping (Result<Movie, MovieError>) -> ())
-//    func searchMovie(query: String, completion: @escaping (Result<MovieResponce, MovieError>) -> ())
     
 }
 
 enum NetworkRequestType {
     case movieList(type: MovieListType)
-    case search(query: String)
+    case tvList(type: TvListType)
+    case movieSearch(query: String)
+    case tvSearch(query: String)
     case single(id: Int)
 }
 enum MovieListType: String {
-    case nowPlaying = "now_playing"
+    case filmsNowPlaying = "now_playing"
     case upcoming
     case topRated = "top_rated"
     case popular
 }
+enum TvListType: String {
+    case onAir = "on_the_air"
+    case popular
+    case topRated = "top_rated"
+}
 
-//enum NetworkError: Error, CustomNSError {
-//    case apiError
-//    case invalidEndpoint
-//    case invalidResponse
-//    case noData
-//    case serializationError
-//
-//    var localizedDescription: String {
-//        switch self {
-//        case .apiError:
-//            return "Failed to fetch data"
-//        case .invalidEndpoint:
-//            return "Invalid endpoint"
-//        case .invalidResponse:
-//            return "Invalid response"
-//        case .noData:
-//            return "No data"
-//        case .serializationError:
-//            return "Failed to decode data"
-//        }
-//    }
-//    var errorUserInfo: [String : Any] {
-//        [NSLocalizedDescriptionKey: localizedDescription]
-//    }
-//}
+enum NetworkError: Error, CustomNSError {
+    case apiError
+    case invalidURL
+    case invalidResponse
+    case noData
+    case serializationError
+    
+    var localizedDescription: String {
+        switch self {
+        case .apiError:
+            return "Failed to fetch data"
+        case .invalidURL:
+            return "Invalid URL"
+        case .invalidResponse:
+            return "Invalid response"
+        case .noData:
+            return "No data"
+        case .serializationError:
+            return "Failed to decode data"
+        }
+    }
+    
+    var errorUserInfo: [String : Any] {
+        [NSLocalizedDescriptionKey: localizedDescription]
+    }
+}
 
 class NetworkManager: NetworkManagerProtocol {
     
-    enum NetworkError: Error {
-        case apiError
-        case invalidURL
-        case invalidResponse
-        case noData
-        case serializationError
-        
-        var localizedDescription: String {
-            switch self {
-            case .apiError:
-                return "Failed to fetch data"
-            case .invalidURL:
-                return "Invalid endpoint"
-            case .invalidResponse:
-                return "Invalid response"
-            case .noData:
-                return "No data"
-            case .serializationError:
-                return "Failed to decode data"
-            }
-        }
-    }
     
     static let shared: NetworkManagerProtocol = NetworkManager()
     private let apiKey = "7764ef393c7ca0012a42f23871539e91"
@@ -87,10 +70,10 @@ class NetworkManager: NetworkManagerProtocol {
         let data = try await loadData(from: url)
         
         switch type {
-        case .movieList, .search:
-            return try await decodeJSON(from: data, in: MovieResponce.self)
+        case .movieList, .movieSearch, .tvList, .tvSearch:
+            return try await decodeJSON(from: data, in: MovieResponse.self)
         case .single:
-            return try await decodeJSON(from: data, in: Movie.self)
+            return try await decodeJSON(from: data, in: Film.self)
         }
     }
     
@@ -99,7 +82,6 @@ class NetworkManager: NetworkManagerProtocol {
         guard let httpResponse = response as? HTTPURLResponse, 200..<300 ~= httpResponse.statusCode else {
             throw NetworkError.invalidResponse
         }
-        print("Data \(data)")
         return data
     }
     
@@ -107,7 +89,8 @@ class NetworkManager: NetworkManagerProtocol {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         guard let data = data else { throw NetworkError.noData }
-        return try decoder.decode(type, from: data)
+        guard let result = try? decoder.decode(type, from: data) else { throw NetworkError.serializationError }
+        return result
     }
     
     private func getURL(for type: NetworkRequestType) async throws -> URL {
@@ -118,14 +101,17 @@ class NetworkManager: NetworkManagerProtocol {
         switch type {
         case .movieList(let type):
             components.path = "/3/movie/\(type.rawValue)"
-        case .search:
+        case .movieSearch:
             components.path = "/3/search/movie"
+        case .tvList(let type):
+            components.path = "/3/tv/\(type.rawValue)"
+        case .tvSearch:
+            components.path = "/3/search/tv"
         case .single(let id):
             components.path = "/3/movie/\(id)"
         }
         components.queryItems = params.map { URLQueryItem(name: $0, value: $1) }
         guard let url = components.url else { throw NetworkError.invalidURL }
-        print(url)
         return url
     }
     
@@ -136,19 +122,18 @@ class NetworkManager: NetworkManagerProtocol {
         parameters["include_adult"] = "true"
         parameters["region"] = "RU"
         if let systemLanguage = NSLocale.preferredLanguages.first {
-            print(systemLanguage)
             parameters["language"] = String(systemLanguage.prefix(2))
         }
         switch type {
         case .movieList:
             break
-        case .search(let query):
+        case .movieSearch(let query), .tvSearch(let query):
             parameters["query"] = query
         case .single:
+            break
+        case .tvList:
             break
         }
         return parameters
     }
-    
-    
 }
