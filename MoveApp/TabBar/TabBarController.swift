@@ -9,18 +9,20 @@ import UIKit
 
 class TabBarController: UITabBarController {
     
-    lazy var mainVC = setupVC(VC: MainViewController(), title: "Main", imageName: "house")
-    lazy var moviesVC = setupVC(VC: MovieViewController(), title: "Movies", imageName: "tv")
-    lazy var tvVC = setupVC(VC: TVViewController(), title: "Serials", imageName: "sparkles.tv")
-    lazy var favouritesVC = setupVC(VC: FavouritesViewController(), title: "Favourites", imageName: "heart")
-    lazy var searchVC = setupVC(VC: SearchViewController(), title: "Search", imageName: "magnifyingglass")
+    private lazy var mainVC = Configurator.configureMainViewController(
+        with: "Main",
+        and: "house"
+    )
+    private lazy var moviesVC = setupVC(VC: MovieViewController(), title: "Movies", imageName: "tv")
+    private lazy var tvVC = setupVC(VC: TVViewController(), title: "Serials", imageName: "sparkles.tv")
+    private lazy var favouritesVC = setupVC(VC: FavouritesViewController(), title: "Favourites", imageName: "heart")
+    private lazy var searchVC = setupVC(VC: SearchViewController(), title: "Search", imageName: "magnifyingglass")
 
-    lazy var customTabBar = CustomTabBar()
+    private lazy var customTabBar = CustomTabBar()
     
-    var tabBarHeight: CGFloat {
+    private var tabBarHeight: CGFloat {
         customTabBar.preferredTabBarHeight
     }
-    
     
     override var selectedViewController: UIViewController? {
         didSet {
@@ -75,6 +77,7 @@ class TabBarController: UITabBarController {
     
     private func setupVC (VC: UIViewController, title: String, imageName: String) -> UINavigationController {
         VC.title = title
+
         let navigationController = UINavigationController(rootViewController: VC)
         navigationController.tabBarItem.image = UIImage(systemName: imageName)
         return navigationController

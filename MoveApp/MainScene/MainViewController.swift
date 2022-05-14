@@ -8,7 +8,7 @@
 import UIKit
 
 protocol MainViewControllerInputProtocol: AnyObject {
-    func reloadData(for sections: [Section])
+    func reloadData(for sections: [MainMovieSectionViewModel])
 }
 
 protocol MainViewControllerOutputProtocol {
@@ -17,101 +17,74 @@ protocol MainViewControllerOutputProtocol {
     func didTapCell(at indexPath: IndexPath)
 }
 
-
-final class MainViewController: UIViewController {
+final class MainViewController: BaseViewController {
     
     var presenter: MainViewControllerOutputProtocol!
-    let configurator: MainConfigurator = MainConfigurator()
-    private var sections: [Section] = []
     
-    private var tabBarIsHidden: Bool = false
+
+    private var sections: [MainMovieSectionViewModel] = []
+    private var dataSource: UICollectionViewDiffableDataSource<MainMovieSectionViewModel, MovieCellViewModel>?
     
-    private var collectionView: UICollectionView!
-    private var dataSource: UICollectionViewDiffableDataSource<Section, Movie>?
-    
-    
-    private let backgroundColor = UIColor(
-        red: 89 / 255,
-        green: 41 / 255,
-        blue: 149 / 255,
-        alpha: 1
+    private lazy var collectionView = UICollectionView(
+        frame: view.bounds,
+        collectionViewLayout: createCompositionalLayout()
     )
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = backgroundColor
-        configurator.configure(with: self)
-        setupNavBar()
-        setupCollectionView()
+        setupCollectionView(collectionView)
         createDataSource()
         presenter.viewDidLoad()
     }
     
-    private func setupCollectionView() {
-        collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createCompositionalLayout())
-        collectionView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        view.addSubview(collectionView)
-        collectionView.backgroundColor = backgroundColor
-        collectionView.delegate = self
-        collectionView.register(MovieCell.self, forCellWithReuseIdentifier: MovieCell.reuseId)
-        collectionView.register(SectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: SectionHeader.reuseId)
-    }
-    
-    private func setupNavBar() {
-        navigationController?.navigationBar.prefersLargeTitles = true
-        let navBarAppearance = UINavigationBarAppearance()
-        navBarAppearance.configureWithOpaqueBackground()
-        navBarAppearance.titleTextAttributes = [.foregroundColor: UIColor.white, .font: UIFont.boldSystemFont(ofSize: 30)]
-        navBarAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white, .font: UIFont.boldSystemFont(ofSize: 70)]
-        navBarAppearance.backgroundColor = backgroundColor
-        navigationController?.navigationBar.standardAppearance = navBarAppearance
-        navigationController?.navigationBar.shadowImage = nil
+    override func setupCollectionView(_ collectionView: UICollectionView) {
+        super.setupCollectionView(collectionView)
+        collectionView.registerCells(
+            [MainMovieCell(), MainNowPlayingMovieCell()],
+            and: MainMovieSection()
+        )
     }
     
     private func createDataSource() {
-        dataSource = UICollectionViewDiffableDataSource<Section, Movie>(collectionView: collectionView, cellProvider: { collectionView, indexPath, itemIdentifier in
+        dataSource = UICollectionViewDiffableDataSource<MainMovieSectionViewModel, MovieCellViewModel>(
+            collectionView: collectionView,
+            cellProvider: { collectionView, indexPath, itemIdentifier in
             switch self.sections[indexPath.section].type {
-            case "nowPlaying":
-     
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MovieCell.reuseId, for: indexPath) as? MovieCell
-                if let endpoint = self.sections[indexPath.section].items[indexPath.item].backdropPath {
-                    cell?.setup(with: endpoint)
-                } else {
-                    print("123")
-                }
-                return cell
-            case "popularFilm":
-    
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MovieCell.reuseId, for: indexPath) as? MovieCell
-                if let endpoint = self.sections[indexPath.section].items[indexPath.item].posterPath {
-                    cell?.setup(with: endpoint)
-                } else {
-                    print("123")
-                }
+            case .nowPlaying:
+                let viewModel = self.sections[indexPath.section].items[indexPath.item]
+                let cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: MainNowPlayingMovieCell().reuseId,
+                    for: indexPath
+                ) as? MainNowPlayingMovieCell
+                cell?.viewModel = viewModel
                 return cell
             default:
-
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MovieCell.reuseId, for: indexPath) as? MovieCell
-                if let endpoint = self.sections[indexPath.section].items[indexPath.item].posterPath {
-                    cell?.setup(with: endpoint)
-                } else {
-                    print("123")
-                }
+                let viewModel = self.sections[indexPath.section].items[indexPath.item]
+                let cell = collectionView.dequeueReusableCell(
+                    withReuseIdentifier: MainMovieCell().reuseId,
+                    for: indexPath
+                ) as? MainMovieCell
+                cell?.viewModel = viewModel
                 return cell
             }
         })
         dataSource?.supplementaryViewProvider = { collectionView, kind, indexPath in
-            guard let sectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: SectionHeader.reuseId, for: indexPath) as? SectionHeader else {return nil}
-            guard let firstMovie = self.dataSource?.itemIdentifier(for: indexPath) else { return nil }
-            guard let sectiion = self.dataSource?.snapshot().sectionIdentifier(containingItem: firstMovie) else { return nil }
-            if sectiion.title.isEmpty { return nil }
-            sectionHeader.title.text = sectiion.title
+            guard let sectionHeader = collectionView.dequeueReusableSupplementaryView(
+                ofKind: kind,
+                withReuseIdentifier: MainMovieSection().reuseId,
+                for: indexPath
+            ) as? MainMovieSection else {return nil}
+            guard let firstMovie = self.dataSource?
+                .itemIdentifier(for: indexPath) else { return nil }
+            guard let viewModel = self.dataSource?.snapshot()
+                .sectionIdentifier(containingItem: firstMovie) else { return nil }
+            sectionHeader.viewModel = viewModel
             return sectionHeader
         }
     }
     
     private func reloadData() {
-        var snapshot = NSDiffableDataSourceSnapshot<Section, Movie>()
+        var snapshot = NSDiffableDataSourceSnapshot<MainMovieSectionViewModel, MovieCellViewModel>()
         snapshot.appendSections(sections)
         for section in sections {
             snapshot.appendItems(section.items, toSection: section)
@@ -120,14 +93,13 @@ final class MainViewController: UIViewController {
     }
     
     private func createCompositionalLayout() -> UICollectionViewLayout {
-        let layout = UICollectionViewCompositionalLayout { (sectionIndex, layoutEnvironment) -> NSCollectionLayoutSection? in
+        let layout = UICollectionViewCompositionalLayout {
+            (sectionIndex, layoutEnvironment) -> NSCollectionLayoutSection? in
             let section = self.sections[sectionIndex]
             
             switch section.type {
-            case "nowPlaying":
+            case .nowPlaying:
                 return self.createMovieSection(withBigItems: true)
-            case "popularFilm":
-                return self.createMovieSection(withBigItems: false)
             default:
                 return self.createMovieSection(withBigItems: false)
             }
@@ -136,53 +108,69 @@ final class MainViewController: UIViewController {
     }
     
     private func createMovieSection(withBigItems: Bool) -> NSCollectionLayoutSection {
-        let width = UIScreen.main.bounds.width - 40
-        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
+        let itemInsets: CGFloat = 8
+        let sectionInsets: CGFloat = 12
+        let width = UIScreen.main.bounds.width - (itemInsets + sectionInsets) * 2
+        let itemSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1),
+            heightDimension: .fractionalHeight(1)
+        )
         let layoutItem = NSCollectionLayoutItem(layoutSize: itemSize)
-        layoutItem.contentInsets = NSDirectionalEdgeInsets.init(top: 0, leading: 8, bottom: 0, trailing: 8)
-        
-        let layoutGroupSize = NSCollectionLayoutSize(widthDimension: .estimated(withBigItems ? width : width / 3), heightDimension: .estimated(withBigItems ? width * 0.56 : width / 2))
-        let layoutGroup = NSCollectionLayoutGroup.horizontal(layoutSize: layoutGroupSize, subitems: [layoutItem])
-        
+        layoutItem.contentInsets = NSDirectionalEdgeInsets.init(
+            top: 0,
+            leading: itemInsets,
+            bottom: 0,
+            trailing: itemInsets
+        )
+        let layoutGroupSize = NSCollectionLayoutSize(
+            widthDimension: .estimated(withBigItems ? width : width / 3),
+            heightDimension: .estimated(withBigItems ? width * 0.6 : width / 2)
+        )
+        let layoutGroup = NSCollectionLayoutGroup.horizontal(
+            layoutSize: layoutGroupSize,
+            subitems: [layoutItem]
+        )
         let layoutSection = NSCollectionLayoutSection(group: layoutGroup)
-        layoutSection.orthogonalScrollingBehavior = withBigItems ? .groupPaging : .continuous
-        layoutSection.contentInsets = NSDirectionalEdgeInsets.init(top: 12, leading: 12, bottom: 6, trailing: 12)
-        
+        layoutSection.orthogonalScrollingBehavior = .groupPaging
+        layoutSection.contentInsets = NSDirectionalEdgeInsets.init(
+            top: sectionInsets,
+            leading: sectionInsets,
+            bottom: sectionInsets,
+            trailing: sectionInsets
+        )
         let header = createSectionHeader()
         layoutSection.boundarySupplementaryItems = [header]
-        
         return layoutSection
     }
     
     private func createSectionHeader() -> NSCollectionLayoutBoundarySupplementaryItem {
-        let layoutSectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .estimated(20))
-        let layoutSectionHeader = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: layoutSectionHeaderSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
+        let layoutSectionHeaderSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1),
+            heightDimension: .estimated(20)
+        )
+        let layoutSectionHeader = NSCollectionLayoutBoundarySupplementaryItem(
+            layoutSize: layoutSectionHeaderSize,
+            elementKind: UICollectionView.elementKindSectionHeader,
+            alignment: .top
+        )
         return layoutSectionHeader
     }
 }
 
 // MARK: - UICollectionViewDelegate
 
-extension MainViewController: UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print(sections[indexPath.section].items[indexPath.item].id)
-    }
-}
-
-// MARK: - UIScrollViewDelegate
-
 extension MainViewController {
-    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        let tabbar = tabBarController as? TabBarController
-        tabBarIsHidden.toggle()
-        tabbar?.setTabBarHidden(tabBarIsHidden, animated: true)
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        print("Title: \(sections[indexPath.section].items[indexPath.item].title)")
     }
 }
+
+
 
 // MARK: - MainViewControllerInputProtocol
 
 extension MainViewController: MainViewControllerInputProtocol {
-    func reloadData(for sections: [Section]) {
+    func reloadData(for sections: [MainMovieSectionViewModel]) {
         self.sections = sections
         reloadData()
     }

@@ -7,22 +7,51 @@
 
 import Foundation
 
-class Film: Movie, MovieProtocol {
-    let adult: Bool? = nil
-    let belongsToCollection: MovieCollection? = nil
-    let budget: Int = 0
-    let imdbId: String = ""
-    var originalTitle: String = ""
-    let releaseDate: String = ""
-    let revenue: Int = 0
-    let runtime: Int = 0
-    var title: String = ""
-    let video: Bool? = nil
-    let videos: [String: Video] = [:]
-    let credits: Credit? = nil
+class Film: Movie, MovieModelProtocol {
+    var adult: Bool?
+    var belongsToCollection: MovieCollection?
+    var budget: Int?
+    var imdbId: String?
+    var originalTitle: String?
+    var releaseDate: String?
+    var revenue: Int?
+    var runtime: Int?
+    var title: String?
+    var video: Bool?
+    var videos: [String: Video]?
+    var credits: Credit?
+    
+    private enum CodingKeys: String, CodingKey {
+        case adult
+        case belongsToCollection
+        case budget
+        case imdbId
+        case originalTitle
+        case releaseDate
+        case revenue
+        case runtime
+        case title
+        case video
+        case videos
+        case credits
+    }
+    required init(from decoder: Decoder) throws {
+        try super.init(from: decoder)
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        adult = try container.decodeIfPresent(Bool.self, forKey: .adult)
+        belongsToCollection = try container.decodeIfPresent(MovieCollection.self, forKey: .belongsToCollection)
+        budget = try container.decodeIfPresent(Int.self, forKey: .budget)
+        imdbId = try container.decodeIfPresent(String.self, forKey: .imdbId)
+        originalTitle = try container.decodeIfPresent(String.self, forKey: .originalTitle)
+        releaseDate = try container.decodeIfPresent(String.self, forKey: .releaseDate)
+        revenue = try container.decodeIfPresent(Int.self, forKey: .revenue)
+        runtime = try container.decodeIfPresent(Int.self, forKey: .runtime)
+        title = try container.decodeIfPresent(String.self, forKey: .title)
+        video = try container.decodeIfPresent(Bool.self, forKey: .video)
+    }
 }
 
-struct Video: Decodable, Hashable {
+struct Video: Decodable {
     let iso6391: String?
     let iso31661: String?
     let name: String?
@@ -35,12 +64,12 @@ struct Video: Decodable, Hashable {
     let id: String?
 }
 
-struct Credit: Decodable, Hashable {
+struct Credit: Decodable {
     let cast: Staff?
     let crew: Staff?
 }
 
-struct Staff: Decodable, Hashable {
+struct Staff: Decodable {
     let adult: Bool?
     let gender: Int?
     let id: Int?

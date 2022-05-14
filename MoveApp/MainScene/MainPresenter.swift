@@ -8,12 +8,12 @@
 import Foundation
 
 struct MainPresenterDataStore {
-    let nowPlaying: [Movie]
-    let topRatedFilms: [Movie]
-    let popularMFilms: [Movie]
-    let popularTv: [Movie]
-    let topRatedTv: [Movie]
-    
+    let nowPlaying: [MovieModelProtocol]
+    let topRatedFilms: [MovieModelProtocol]
+    let popularMFilms: [MovieModelProtocol]
+    let popularTv: [MovieModelProtocol]
+    let topRatedTv: [MovieModelProtocol]
+
 }
 
 final class MainPresenter: MainViewControllerOutputProtocol {
@@ -38,19 +38,12 @@ final class MainPresenter: MainViewControllerOutputProtocol {
 extension MainPresenter: MainInteractorOutputProtocol {
     func objectsDidReceive(with dataStore: MainPresenterDataStore) {
         
-        let nowPlaying = dataStore.nowPlaying
-        let topRatedFilms = dataStore.topRatedFilms
-        let popularFilms = dataStore.popularMFilms
-        let topRatedTvShows = dataStore.topRatedTv
-        let popularTvShow = dataStore.popularTv
-        
-        
-        let sections: [Section] = [
-            Section(type: "nowPlaying", title: "Now Playing", items: nowPlaying),
-            Section(type: "topRatedFilms", title: "Top Rated Films", items: topRatedFilms),
-            Section(type: "popularFilms", title: "Popular Films", items: popularFilms),
-            Section(type: "topRatedTv", title: "Top Rated TV Shows", items: topRatedTvShows),
-            Section(type: "popularTv", title: "Popular TV Shows", items: popularTvShow)
+        let sections: [MainMovieSectionViewModel] = [
+            MainMovieSectionViewModel(type: .nowPlaying, items: dataStore.nowPlaying),
+            MainMovieSectionViewModel(type: .topRatedFilms, items: dataStore.topRatedFilms),
+            MainMovieSectionViewModel(type: .popularFilms, items: dataStore.popularMFilms),
+            MainMovieSectionViewModel(type: .topRatedTv, items: dataStore.topRatedTv),
+            MainMovieSectionViewModel(type: .popularTv, items: dataStore.popularTv)
         ]
         self.view.reloadData(for: sections)
         
