@@ -15,7 +15,7 @@ class CustomTabBar: UIView {
     
     private let containerView = UIView()
     private let containerStackView = UIStackView()
-    private let indicatorView = IndicatorView()
+    private let indicatorView = UIView()
     
     var preferredTabBarHeight: CGFloat = 70
     var preferredBottomBackground: UIColor = .clear
@@ -43,11 +43,13 @@ class CustomTabBar: UIView {
         containerStackView.axis = .horizontal
         containerStackView.alignment = .fill
         
-        indicatorView.topAnchor.constraint(equalTo: containerView.topAnchor).isActive = true
-        indicatorView.heightAnchor.constraint(equalTo: containerView.heightAnchor).isActive = true
+        indicatorView.backgroundColor = .systemRed
+        indicatorView.layer.cornerRadius = 17.5
+        indicatorView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
+        indicatorView.heightAnchor.constraint(equalTo: containerView.heightAnchor, constant: -20).isActive = true
         
         containerView.setConstraintsToSuperView(top: 7.5, left: 20, right: -20, bottom: -7.5)
-        containerStackView.setConstraintsToSuperView()
+        containerStackView.setConstraintsToSuperView(top: 0, left: 10, right: -10, bottom: 0)
         containerView.bringSubviewToFront(containerStackView)
         updateStyle()
         select(at: 0, animated: false, notifyDelegate: false)
@@ -89,10 +91,8 @@ class CustomTabBar: UIView {
         
         if animated {
             UIView.animate(withDuration: 0.2, animations: blok)
-            print("animated")
         } else {
             blok()
-            print("no animated")
         }
         
         if notifyDelegate {

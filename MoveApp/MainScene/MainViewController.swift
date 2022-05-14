@@ -24,6 +24,8 @@ final class MainViewController: UIViewController {
     let configurator: MainConfigurator = MainConfigurator()
     private var sections: [Section] = []
     
+    private var tabBarIsHidden: Bool = false
+    
     private var collectionView: UICollectionView!
     private var dataSource: UICollectionViewDiffableDataSource<Section, Movie>?
     
@@ -42,7 +44,6 @@ final class MainViewController: UIViewController {
         setupNavBar()
         setupCollectionView()
         createDataSource()
-        reloadData()
         presenter.viewDidLoad()
     }
     
@@ -135,11 +136,12 @@ final class MainViewController: UIViewController {
     }
     
     private func createMovieSection(withBigItems: Bool) -> NSCollectionLayoutSection {
+        let width = UIScreen.main.bounds.width - 40
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1), heightDimension: .fractionalHeight(1))
         let layoutItem = NSCollectionLayoutItem(layoutSize: itemSize)
         layoutItem.contentInsets = NSDirectionalEdgeInsets.init(top: 0, leading: 8, bottom: 0, trailing: 8)
         
-        let layoutGroupSize = NSCollectionLayoutSize(widthDimension: .estimated(withBigItems ? 400 : 200), heightDimension: .estimated(200))
+        let layoutGroupSize = NSCollectionLayoutSize(widthDimension: .estimated(withBigItems ? width : width / 3), heightDimension: .estimated(withBigItems ? width * 0.56 : width / 2))
         let layoutGroup = NSCollectionLayoutGroup.horizontal(layoutSize: layoutGroupSize, subitems: [layoutItem])
         
         let layoutSection = NSCollectionLayoutSection(group: layoutGroup)
@@ -167,11 +169,21 @@ extension MainViewController: UICollectionViewDelegate {
     }
 }
 
+// MARK: - UIScrollViewDelegate
+
+extension MainViewController {
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        let tabbar = tabBarController as? TabBarController
+        tabBarIsHidden.toggle()
+        tabbar?.setTabBarHidden(tabBarIsHidden, animated: true)
+    }
+}
+
+// MARK: - MainViewControllerInputProtocol
+
 extension MainViewController: MainViewControllerInputProtocol {
     func reloadData(for sections: [Section]) {
         self.sections = sections
         reloadData()
     }
-    
-    
 }

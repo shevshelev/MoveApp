@@ -62,17 +62,16 @@ class TabBarController: UITabBarController {
 
     }
         
-//    func setTabBarHidden(_ isHidden: Bool, animated: Bool) {
-//        let blok = {
-//            self.customTabBar.alpha = isHidden ? 0 : 1
-//            self.additionalSafeAreaInsets = UIEdgeInsets(top: 0, left: 0, bottom: self.tabBarHeight, right: 0)
-//        }
-//        if animated {
-//            UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseIn, animations: blok, completion: nil)
-//        } else {
-//            blok()
-//        }
-//    }
+    func setTabBarHidden(_ isHidden: Bool, animated: Bool) {
+        let blok = {
+            self.customTabBar.frame = self.customTabBar.frame.offsetBy(dx: 0, dy: isHidden ? 100 : -100)
+        }
+        if animated {
+            UIView.animate(withDuration: 0.3, delay: 0, options: .curveEaseIn, animations: blok, completion: nil)
+        } else {
+            blok()
+        }
+    }
     
     private func setupVC (VC: UIViewController, title: String, imageName: String) -> UINavigationController {
         VC.title = title

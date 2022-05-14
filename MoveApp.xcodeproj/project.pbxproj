@@ -16,7 +16,6 @@
 		B817F927282D38FB00957949 /* UIView+Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B817F926282D38FB00957949 /* UIView+Additions.swift */; };
 		B817F929282D392600957949 /* UIStackView+Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B817F928282D392600957949 /* UIStackView+Additions.swift */; };
 		B817F92B282D3FBD00957949 /* TabBarButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B817F92A282D3FBD00957949 /* TabBarButton.swift */; };
-		B817F92D282D401700957949 /* IndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B817F92C282D401700957949 /* IndicatorView.swift */; };
 		B817F930282D659700957949 /* Section.swift in Sources */ = {isa = PBXBuildFile; fileRef = B817F92F282D659700957949 /* Section.swift */; };
 		B817F933282D683C00957949 /* MovieCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B817F932282D683C00957949 /* MovieCell.swift */; };
 		B817F935282D685100957949 /* SectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B817F934282D685100957949 /* SectionHeader.swift */; };
@@ -46,7 +45,6 @@
 		B817F926282D38FB00957949 /* UIView+Additions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Additions.swift"; sourceTree = "<group>"; };
 		B817F928282D392600957949 /* UIStackView+Additions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStackView+Additions.swift"; sourceTree = "<group>"; };
 		B817F92A282D3FBD00957949 /* TabBarButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarButton.swift; sourceTree = "<group>"; };
-		B817F92C282D401700957949 /* IndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndicatorView.swift; sourceTree = "<group>"; };
 		B817F92F282D659700957949 /* Section.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Section.swift; sourceTree = "<group>"; };
 		B817F932282D683C00957949 /* MovieCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieCell.swift; sourceTree = "<group>"; };
 		B817F934282D685100957949 /* SectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeader.swift; sourceTree = "<group>"; };
@@ -84,7 +82,6 @@
 			children = (
 				B817F91B282CEF2100957949 /* TabBarController.swift */,
 				B817F917282CD47100957949 /* CustomTabBar.swift */,
-				B817F92C282D401700957949 /* IndicatorView.swift */,
 				B817F92A282D3FBD00957949 /* TabBarButton.swift */,
 			);
 			path = TabBar;
@@ -260,7 +257,6 @@
 				B817F91E282D103800957949 /* MovieViewController.swift in Sources */,
 				B817F935282D685100957949 /* SectionHeader.swift in Sources */,
 				B8EA95B3282B92190063C7DE /* NetworkManager.swift in Sources */,
-				B817F92D282D401700957949 /* IndicatorView.swift in Sources */,
 				B817F93B282E580A00957949 /* MainConfigurator.swift in Sources */,
 				B817F918282CD47100957949 /* CustomTabBar.swift in Sources */,
 				B817F924282D241100957949 /* SearchViewController.swift in Sources */,

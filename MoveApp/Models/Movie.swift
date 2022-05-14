@@ -7,6 +7,11 @@
 
 import Foundation
 
+protocol MovieProtocol: Decodable, Hashable {
+    var title: String { get }
+    var originalTitle: String { get }
+}
+
 struct MovieResponse: Decodable {
     let page: Int?
     let results: [Movie]

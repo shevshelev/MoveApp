@@ -7,16 +7,16 @@
 
 import Foundation
 
-class Film: Movie {
+class Film: Movie, MovieProtocol {
     let adult: Bool? = nil
     let belongsToCollection: MovieCollection? = nil
     let budget: Int = 0
     let imdbId: String = ""
-    let originalTitle: String = ""
+    var originalTitle: String = ""
     let releaseDate: String = ""
     let revenue: Int = 0
     let runtime: Int = 0
-    let title: String = ""
+    var title: String = ""
     let video: Bool? = nil
     let videos: [String: Video] = [:]
     let credits: Credit? = nil

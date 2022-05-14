@@ -19,10 +19,6 @@ final class TabBarButton: UIButton {
         }
     }
     
-    override var intrinsicContentSize: CGSize {
-        .init(width: 45, height: 45)
-    }
-    
     init(image: UIImage?, selectedImage: UIImage?, title: String?) {
         self.image = image
         self.selectedImage = selectedImage
@@ -34,12 +30,12 @@ final class TabBarButton: UIButton {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    
+
     private func updateStyle() {
         tintColor = _isSelected ? .white : .white.withAlphaComponent(0.25)
-        widthAnchor.constraint(equalTo: superview!.widthAnchor, multiplier: 0.5).isActive = _isSelected
-        widthAnchor.constraint(equalTo: superview!.widthAnchor, multiplier: 0.125).isActive = !_isSelected
+        widthAnchor.constraint(equalTo: superview!.widthAnchor, multiplier: 0.4).isActive = _isSelected
+        widthAnchor.constraint(equalTo: superview!.widthAnchor, multiplier: 0.15).isActive = !_isSelected
+        
         setImage(_isSelected ? selectedImage : image, for: .normal)
         setTitle(_isSelected ? title : nil, for: .normal)
     }

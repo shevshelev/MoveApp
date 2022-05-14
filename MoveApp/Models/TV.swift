@@ -7,7 +7,8 @@
 
 import Foundation
 
-class Tv: Movie {
+class Tv: Movie, MovieProtocol {
+    
     let createdBy: [Staff] = []
     let episodeRunTime: [Int] = []
     let firstAirDate: String = ""
@@ -24,6 +25,13 @@ class Tv: Movie {
     let originalName: String = ""
     let seasons: [Season] = []
     let type: String = ""
+    
+    var title: String {
+        name
+    }
+    var originalTitle: String {
+        originalName
+    }
 }
 
 struct Episode: Decodable, Hashable {
