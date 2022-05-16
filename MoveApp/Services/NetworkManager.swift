@@ -19,6 +19,7 @@ enum NetworkRequestType {
     case tvSearch(query: String)
     case single(id: Int)
     case latestMovie
+    case latestTv
 }
 enum MovieListType: String {
     case nowPlaying = "now_playing"
@@ -30,6 +31,7 @@ enum TvListType: String {
     case onAir = "on_the_air"
     case popular
     case topRated = "top_rated"
+    case airingToday = "airing_today"
 }
 
 enum NetworkError: Error, CustomNSError {
@@ -77,6 +79,8 @@ class NetworkManager: NetworkManagerProtocol {
             return try await decodeJSON(from: data, in: Film.self)
         case .tvList, .tvSearch:
             return try await decodeJSON(from: data, in: MovieResponse<Tv>.self)
+        case .latestTv:
+            return try await decodeJSON(from: data, in: Tv.self)
         }
     }
     
@@ -114,6 +118,8 @@ class NetworkManager: NetworkManagerProtocol {
             components.path = "/3/movie/\(id)"
         case .latestMovie:
             components.path = "/3/movie/latest"
+        case .latestTv:
+            components.path = "/3/tv/latest"
         }
         components.queryItems = params.map { URLQueryItem(name: $0, value: $1) }
         guard let url = components.url else { throw NetworkError.invalidURL }
@@ -130,7 +136,7 @@ class NetworkManager: NetworkManagerProtocol {
             parameters["language"] = String(systemLanguage.prefix(2))
         }
         switch type {
-        case .movieList, .single, .tvList, .latestMovie:
+        case .movieList, .single, .tvList, .latestMovie, .latestTv:
             break
         case .movieSearch(let query), .tvSearch(let query):
             parameters["query"] = query

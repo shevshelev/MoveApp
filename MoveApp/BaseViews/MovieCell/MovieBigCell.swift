@@ -1,5 +1,5 @@
 //
-//  MainNowPlayingMovieCell.swift
+//  MovieBigCell.swift
 //  MoveApp
 //
 //  Created by Shevshelev Lev on 14.05.2022.
@@ -7,12 +7,21 @@
 
 import UIKit
 
-class MainNowPlayingMovieCell: MainMovieCell {
+class MovieBigCell: MovieCell {
     
     override var reuseId: String {
-        "NowNowPlayingMovieCell"
+        "MovieBigCell"
     }
     
+    private lazy var stubLabel: UILabel = {
+        let label = UILabel()
+        label.font = .boldSystemFont(ofSize: 30)
+        label.textColor = .white
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
@@ -29,6 +38,7 @@ class MainNowPlayingMovieCell: MainMovieCell {
         titleLabel.trailingAnchor.constraint(lessThanOrEqualTo: self.trailingAnchor).isActive = true
     }
     
+    
     override func setImage() {
         Task {
             if let backdropURL = viewModel.backdropURL {
@@ -36,8 +46,22 @@ class MainNowPlayingMovieCell: MainMovieCell {
             } else {
                 if let posterURl = viewModel.posterURL {
                     try await movieImageView.fetchImage(with:posterURl)
+                } else {
+                    DispatchQueue.main.async {
+                        self.setupStub()
+                    }
                 }
             }
         }
+    }
+    private func setupStub() {
+        addSubview(stubLabel)
+        NSLayoutConstraint.activate([
+            stubLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            stubLabel.centerXAnchor.constraint(equalTo: centerXAnchor),
+            stubLabel.widthAnchor.constraint(equalTo: widthAnchor, constant: -20),
+        ])
+        stubLabel.text = viewModel.title
+        titleLabel.text = nil
     }
 }

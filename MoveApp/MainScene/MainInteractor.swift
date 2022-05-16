@@ -8,7 +8,7 @@
 import Foundation
 
 protocol MainInteractorInputProtocol {
-    init(presenter: MainInteractorOutputProtocol)
+    init(presenter: MainInteractorOutputProtocol, networkManager: NetworkManagerProtocol)
     func fetchObjects()
 }
 
@@ -19,10 +19,11 @@ protocol MainInteractorOutputProtocol: AnyObject {
 final class MainInteractor: MainInteractorInputProtocol {
     
     private unowned let presenter: MainInteractorOutputProtocol!
-    private let networkManager: NetworkManagerProtocol = NetworkManager.shared
+    private let networkManager: NetworkManagerProtocol
     
-    init(presenter: MainInteractorOutputProtocol) {
+    init(presenter: MainInteractorOutputProtocol, networkManager: NetworkManagerProtocol) {
         self.presenter = presenter
+        self.networkManager = networkManager
     }
     
     func fetchObjects() {

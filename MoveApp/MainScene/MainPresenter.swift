@@ -19,7 +19,7 @@ struct MainPresenterDataStore {
 final class MainPresenter: MainViewControllerOutputProtocol {
     
     private unowned let view: MainViewControllerInputProtocol
-    private var dataStore: MainPresenterDataStore?
+//    private var dataStore: MainPresenterDataStore?
     var interactor: MainInteractorInputProtocol!
     
     init(view: MainViewControllerInputProtocol) {
@@ -38,12 +38,12 @@ final class MainPresenter: MainViewControllerOutputProtocol {
 extension MainPresenter: MainInteractorOutputProtocol {
     func objectsDidReceive(with dataStore: MainPresenterDataStore) {
         
-        let sections: [MainMovieSectionViewModel] = [
-            MainMovieSectionViewModel(type: .nowPlaying, items: dataStore.nowPlaying),
-            MainMovieSectionViewModel(type: .topRatedFilms, items: dataStore.topRatedFilms),
-            MainMovieSectionViewModel(type: .popularFilms, items: dataStore.popularMFilms),
-            MainMovieSectionViewModel(type: .topRatedTv, items: dataStore.topRatedTv),
-            MainMovieSectionViewModel(type: .popularTv, items: dataStore.popularTv)
+        let sections: [MovieSectionViewModel] = [
+            MovieSectionViewModel(type: .nowPlaying, items: dataStore.nowPlaying),
+            MovieSectionViewModel(type: .topRatedFilms, items: dataStore.topRatedFilms),
+            MovieSectionViewModel(type: .popularFilms, items: dataStore.popularMFilms),
+            MovieSectionViewModel(type: .topRatedTV, items: dataStore.topRatedTv),
+            MovieSectionViewModel(type: .popularTV, items: dataStore.popularTv)
         ]
         self.view.reloadData(for: sections)
         

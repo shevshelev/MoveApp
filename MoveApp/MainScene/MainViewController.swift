@@ -8,7 +8,7 @@
 import UIKit
 
 protocol MainViewControllerInputProtocol: AnyObject {
-    func reloadData(for sections: [MainMovieSectionViewModel])
+    func reloadData(for sections: [MovieSectionViewModel])
 }
 
 protocol MainViewControllerOutputProtocol {
@@ -19,72 +19,78 @@ protocol MainViewControllerOutputProtocol {
 
 final class MainViewController: BaseViewController {
     
+    var includeLatest: Bool
     var presenter: MainViewControllerOutputProtocol!
     
-
-    private var sections: [MainMovieSectionViewModel] = []
-    private var dataSource: UICollectionViewDiffableDataSource<MainMovieSectionViewModel, MovieCellViewModel>?
+    private var sections: [MovieSectionViewModel] = []
+    private var dataSource: UICollectionViewDiffableDataSource<MovieSectionViewModel, MovieCellViewModel>?
     
     private lazy var collectionView = UICollectionView(
         frame: view.bounds,
         collectionViewLayout: createCompositionalLayout()
     )
     
+    init(includeLatest: Bool) {
+        self.includeLatest = includeLatest
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupCollectionView(collectionView)
-        createDataSource()
         presenter.viewDidLoad()
     }
     
     override func setupCollectionView(_ collectionView: UICollectionView) {
         super.setupCollectionView(collectionView)
         collectionView.registerCells(
-            [MainMovieCell(), MainNowPlayingMovieCell()],
-            and: MainMovieSection()
+            [MovieCell(), MovieBigCell()],
+            and: MovieCollectionSection()
         )
-    }
-    
-    private func createDataSource() {
-        dataSource = UICollectionViewDiffableDataSource<MainMovieSectionViewModel, MovieCellViewModel>(
-            collectionView: collectionView,
-            cellProvider: { collectionView, indexPath, itemIdentifier in
-            switch self.sections[indexPath.section].type {
+        dataSource = createDataSource(MovieSectionViewModel.self, MovieCellViewModel.self, for: collectionView) {[unowned self] collectionView, indexPath, itemIdentifier in
+            switch sections[indexPath.section].type {
             case .nowPlaying:
-                let viewModel = self.sections[indexPath.section].items[indexPath.item]
+                if includeLatest {
+                    let viewModel = sections[indexPath.section].items[indexPath.item]
+                    let cell = collectionView.dequeueReusableCell(
+                        withReuseIdentifier: MovieCell().reuseId,
+                        for: indexPath) as? MovieCell
+                    cell?.viewModel = viewModel
+                    return cell
+                } else {
+                    let viewModel = sections[indexPath.section].items[indexPath.item]
+                    let cell = collectionView.dequeueReusableCell(
+                        withReuseIdentifier: MovieBigCell().reuseId,
+                        for: indexPath) as? MovieBigCell
+                    cell?.viewModel = viewModel
+                    return cell
+                }
+            case .latest:
+                let viewModel = sections[indexPath.section].items[indexPath.item]
                 let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: MainNowPlayingMovieCell().reuseId,
-                    for: indexPath
-                ) as? MainNowPlayingMovieCell
+                    withReuseIdentifier: MovieBigCell().reuseId,
+                    for: indexPath) as? MovieBigCell
                 cell?.viewModel = viewModel
                 return cell
             default:
-                let viewModel = self.sections[indexPath.section].items[indexPath.item]
+                let viewModel = sections[indexPath.section].items[indexPath.item]
                 let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: MainMovieCell().reuseId,
-                    for: indexPath
-                ) as? MainMovieCell
+                    withReuseIdentifier: MovieCell().reuseId,
+                    for: indexPath) as? MovieCell
                 cell?.viewModel = viewModel
                 return cell
             }
-        })
-        dataSource?.supplementaryViewProvider = { collectionView, kind, indexPath in
-            guard let sectionHeader = collectionView.dequeueReusableSupplementaryView(
-                ofKind: kind,
-                withReuseIdentifier: MainMovieSection().reuseId,
-                for: indexPath
-            ) as? MainMovieSection else {return nil}
-            guard let firstMovie = self.dataSource?
-                .itemIdentifier(for: indexPath) else { return nil }
-            guard let viewModel = self.dataSource?.snapshot()
-                .sectionIdentifier(containingItem: firstMovie) else { return nil }
-            sectionHeader.viewModel = viewModel
-            return sectionHeader
         }
+        createSupplementaryViewProvider(for: dataSource, with: MovieCollectionSection())
     }
+
     
     private func reloadData() {
-        var snapshot = NSDiffableDataSourceSnapshot<MainMovieSectionViewModel, MovieCellViewModel>()
+        var snapshot = NSDiffableDataSourceSnapshot<MovieSectionViewModel, MovieCellViewModel>()
         snapshot.appendSections(sections)
         for section in sections {
             snapshot.appendItems(section.items, toSection: section)
@@ -99,15 +105,17 @@ final class MainViewController: BaseViewController {
             
             switch section.type {
             case .nowPlaying:
-                return self.createMovieSection(withBigItems: true)
+                return self.createSection(withBigItems: !self.includeLatest)
+            case .latest:
+                return self.createSection(withBigItems: self.includeLatest)
             default:
-                return self.createMovieSection(withBigItems: false)
+                return self.createSection(withBigItems: false)
             }
         }
         return layout
     }
     
-    private func createMovieSection(withBigItems: Bool) -> NSCollectionLayoutSection {
+    private func createSection(withBigItems: Bool) -> NSCollectionLayoutSection {
         let itemInsets: CGFloat = 8
         let sectionInsets: CGFloat = 12
         let width = UIScreen.main.bounds.width - (itemInsets + sectionInsets) * 2
@@ -170,7 +178,7 @@ extension MainViewController {
 // MARK: - MainViewControllerInputProtocol
 
 extension MainViewController: MainViewControllerInputProtocol {
-    func reloadData(for sections: [MainMovieSectionViewModel]) {
+    func reloadData(for sections: [MovieSectionViewModel]) {
         self.sections = sections
         reloadData()
     }

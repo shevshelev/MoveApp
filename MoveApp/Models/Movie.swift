@@ -27,17 +27,17 @@ class Movie: Decodable {
     let genres: [Genre]?
     let genreIds: [Int]?
     let homepage: String?
-    let id: Int
-    let originalLanguage: String
-    let overview: String
-    let popularity: Double
+    let id: Int?
+    let originalLanguage: String?
+    let overview: String?
+    let popularity: Double?
     var posterPath: String?
     let productionCompanies: [Company]?
     let productionCountries: [Country]?
     let spokenLanguages: [Language]?
     let status: String?
     let tagline: String?
-    let voteAverage: Double
+    let voteAverage: Double?
     let voiteCount: Int?
 }
 

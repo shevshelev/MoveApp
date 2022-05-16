@@ -8,7 +8,7 @@
 import UIKit
 
 extension UICollectionView {
-    func registerCells(_ cells: [BaseCollectionViewCell], and header: BaseCollectionSection) {
+    func registerCells(_ cells: [MovieCell], and header: MovieCollectionSection) {
         cells.forEach {
             register(type(of: $0), forCellWithReuseIdentifier: $0.reuseId)
         }

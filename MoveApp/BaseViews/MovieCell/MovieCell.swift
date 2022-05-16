@@ -1,5 +1,5 @@
 //
-//  MainMovieCell.swift
+//  MovieCell.swift
 //  MoveApp
 //
 //  Created by Shevshelev Lev on 12.05.2022.
@@ -7,10 +7,10 @@
 
 import UIKit
 
-class MainMovieCell: BaseCollectionViewCell {
+class MovieCell: UICollectionViewCell {
     
-    override var reuseId: String {
-        "MainMovieCell"
+    var reuseId: String {
+        "MovieCell"
     }
     
     var viewModel: MovieCellViewModelProtocol! {

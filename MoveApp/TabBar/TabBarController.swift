@@ -13,8 +13,13 @@ class TabBarController: UITabBarController {
         with: "Main",
         and: "house"
     )
-    private lazy var moviesVC = setupVC(VC: MovieViewController(), title: "Movies", imageName: "tv")
-    private lazy var tvVC = setupVC(VC: TVViewController(), title: "Serials", imageName: "sparkles.tv")
+    private lazy var moviesVC = Configurator.configureMovieViewController(
+        with: "Movies",
+        and: "tv")
+    
+    private lazy var tvVC = Configurator.configureTVViewController(
+        with: "TV Shows",
+        and: "sparkles.tv")
     private lazy var favouritesVC = setupVC(VC: FavouritesViewController(), title: "Favourites", imageName: "heart")
     private lazy var searchVC = setupVC(VC: SearchViewController(), title: "Search", imageName: "magnifyingglass")
 

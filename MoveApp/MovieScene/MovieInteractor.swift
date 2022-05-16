@@ -21,7 +21,7 @@ final class MovieInteractor: MovieInteractorInputProtocol {
     private unowned let presenter: MovieInteractorOutputProtocol
     private let networkManager: NetworkManagerProtocol
     
-    init(presenter: MovieInteractorOutputProtocol, networkManager: NetworkManagerProtocol = NetworkManager.shared) {
+    init(presenter: MovieInteractorOutputProtocol, networkManager: NetworkManagerProtocol) {
         self.presenter = presenter
         self.networkManager = networkManager
     }

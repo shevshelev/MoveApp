@@ -67,24 +67,24 @@ class Tv: Movie, MovieModelProtocol {
 }
 
 struct Episode: Decodable {
-    let airDate: String
-    let episodeNumber: Int
-    let id: Int
-    let name: String
-    let overview: String
-    let productionCode: String
-    let seasonNumber: Int
+    let airDate: String?
+    let episodeNumber: Int?
+    let id: Int?
+    let name: String?
+    let overview: String?
+    let productionCode: String?
+    let seasonNumber: Int?
     let stillPath: String?
-    let voteAverage: Double
-    let voteCount: Int
+    let voteAverage: Double?
+    let voteCount: Int?
 }
 
 struct Season: Decodable {
-    let airDate: String
-    let episodeCount: Int
-    let id: Int
-    let name: String
-    let overview: String
-    let posterPath: String
-    let seasonNumber: Int
+    let airDate: String?
+    let episodeCount: Int?
+    let id: Int?
+    let name: String?
+    let overview: String?
+    let posterPath: String?
+    let seasonNumber: Int?
 }

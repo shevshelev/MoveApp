@@ -10,16 +10,15 @@ import UIKit
 
 protocol CoufiguratorInputProtocol {
     static func configureMainViewController(with title: String, and imageName: String) -> UINavigationController
+    static func configureMovieViewController(with title: String, and imageName: String) -> UINavigationController
 }
 
 class Configurator: CoufiguratorInputProtocol {
     
-    private let backgroundColor = UIColor.blue
-    
     static func configureMainViewController(with title: String, and imageName: String) -> UINavigationController {
-        let viewController = MainViewController()
+        let viewController = MainViewController(includeLatest: false)
         let presenter = MainPresenter(view: viewController)
-        let interactor = MainInteractor(presenter: presenter)
+        let interactor = MainInteractor(presenter: presenter, networkManager: NetworkManager.shared)
         let navigationController = UINavigationController(rootViewController: viewController)
         navigationController.tabBarItem.image = UIImage(systemName: imageName)
         viewController.title = title
@@ -28,5 +27,28 @@ class Configurator: CoufiguratorInputProtocol {
         return navigationController
     }
     
+    static func configureMovieViewController(with title: String, and imageName: String) -> UINavigationController {
+        let viewController = MainViewController(includeLatest: true)
+        let presenter = MoviePresenter(view: viewController)
+        let interactor = MovieInteractor(presenter: presenter, networkManager: NetworkManager.shared)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        navigationController.tabBarItem.image = UIImage(systemName: imageName)
+        viewController.title = title
+        viewController.presenter = presenter
+        presenter.interactor = interactor
+        return navigationController
+    }
+    
+    static func configureTVViewController(with title: String, and imageName: String) -> UINavigationController {
+        let viewController = MainViewController(includeLatest: true)
+        let presenter = TVPresenter(view: viewController)
+        let interactor = TVInteractor(presenter: presenter, networkManager: NetworkManager.shared)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        navigationController.tabBarItem.image = UIImage(systemName: imageName)
+        viewController.title = title
+        viewController.presenter = presenter
+        presenter.interactor = interactor
+        return navigationController
+    }
     
 }

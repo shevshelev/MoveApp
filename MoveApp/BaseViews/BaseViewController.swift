@@ -44,8 +44,34 @@ class BaseViewController: UIViewController, UICollectionViewDelegate {
         view.addSubview(collectionView)
         collectionView.backgroundColor = backgroundColor
         collectionView.delegate = self
-        collectionView.registerCells([MainMovieCell(), MainNowPlayingMovieCell()], and: MainMovieSection())
+        collectionView.registerCells([MovieCell(), MovieBigCell()], and: MovieCollectionSection())
     }
+    
+    func createDataSource<S: Hashable, T: Hashable>(_ sectionType: S.Type, _ itemsType: T.Type, for collectionView: UICollectionView, with cellProvider: @escaping ((UICollectionView, IndexPath, T) -> UICollectionViewCell?)) -> UICollectionViewDiffableDataSource<S, T> {
+       let dataSource = UICollectionViewDiffableDataSource<S, T>(
+            collectionView: collectionView,
+            cellProvider: cellProvider
+        )
+        return dataSource
+    }
+    
+    func createSupplementaryViewProvider<S: Hashable & MovieSectionViewModelProtocol, T: Hashable>(for dataSource: UICollectionViewDiffableDataSource<S, T>?, with view: MovieCollectionSection) {
+        dataSource?.supplementaryViewProvider = { collectionView, kind, indexPath in
+           guard let sectionHeader = collectionView.dequeueReusableSupplementaryView(
+                ofKind: kind,
+                withReuseIdentifier: view.reuseId,
+                for: indexPath
+           ) as? MovieCollectionSection else { return nil }
+
+            guard let firstMovie = dataSource?
+                .itemIdentifier(for: indexPath) else { return nil }
+            guard let viewModel = dataSource?.snapshot()
+                .sectionIdentifier(containingItem: firstMovie) else { return nil }
+            sectionHeader.viewModel = viewModel
+            return sectionHeader
+        }
+    }
+    
 }
 
 // MARK: - UIScrollViewDelegate
