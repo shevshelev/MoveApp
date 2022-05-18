@@ -12,13 +12,14 @@ protocol MainInteractorInputProtocol {
     func fetchObjects()
 }
 
-protocol MainInteractorOutputProtocol: AnyObject {
-    func objectsDidReceive(with dataStore: MainPresenterDataStore)
+@objc protocol MainInteractorOutputProtocol: AnyObject {
+    @objc optional func objectsDidReceive(with dataStore: [MainPresenterDataStore])
+    @objc optional func objectsDidReceive(with dataStore: MainPresenterDataStore)
 }
 
 final class MainInteractor: MainInteractorInputProtocol {
     
-    private unowned let presenter: MainInteractorOutputProtocol!
+    private unowned let presenter: MainInteractorOutputProtocol
     private let networkManager: NetworkManagerProtocol
     
     init(presenter: MainInteractorOutputProtocol, networkManager: NetworkManagerProtocol) {
@@ -35,15 +36,20 @@ final class MainInteractor: MainInteractorInputProtocol {
             guard let topRatedTv = try? await networkManager.fetchMovie(for: .tvList(type: .topRated)) as? MovieResponse<Tv> else { return }
             guard let popularTv = try? await networkManager.fetchMovie(for: .tvList(type: .popular)) as? MovieResponse<Tv> else { return }
             
-            let dataStore = MainPresenterDataStore(
-                nowPlaying: (nowPlayingFilms.results + nowPlayingTv.results).shuffled(),
-                topRatedFilms:  topRatedFilms.results,
-                popularMFilms: popularFilms.results,
-                popularTv: popularTv.results,
-                topRatedTv: topRatedTv.results
+            let filmsDataStore = MainPresenterDataStore(
+                type: .film,
+                nowPlaying: nowPlayingFilms.results,
+                topRated: topRatedFilms.results,
+                popular: popularFilms.results
+            )
+            let tvDataStore = MainPresenterDataStore(
+                type: .tvShow,
+                nowPlaying: nowPlayingTv.results,
+                topRated: topRatedTv.results,
+                popular: popularTv.results
             )
             
-            presenter.objectsDidReceive(with: dataStore)
+            presenter.objectsDidReceive!(with: [filmsDataStore, tvDataStore])
             
         }
     }

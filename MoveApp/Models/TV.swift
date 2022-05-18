@@ -8,6 +8,7 @@
 import Foundation
 
 class Tv: Movie, MovieModelProtocol {
+    var dataType: MovieType = .tv
     var createdBy: [Staff]?
     var episodeRunTime: [Int]?
     var firstAirDate: String?
@@ -15,7 +16,7 @@ class Tv: Movie, MovieModelProtocol {
     var languages: [String]?
     var lastAirDate: String?
     var lastEpisodeToAir: Episode?
-    var nextEpisodeToAir: String?
+    var nextEpisodeToAir: Episode?
     var networks: [Company]?
     var numberOfEpisodes: Int?
     var numberOfSeasons: Int?
@@ -54,7 +55,7 @@ class Tv: Movie, MovieModelProtocol {
         languages = try container.decodeIfPresent([String].self, forKey: .languages)
         lastAirDate = try container.decodeIfPresent(String.self, forKey: .lastAirDate)
         lastEpisodeToAir = try container.decodeIfPresent(Episode.self, forKey: .lastEpisodeToAir)
-        nextEpisodeToAir = try container.decodeIfPresent(String.self, forKey: .nextEpisodeToAir)
+        nextEpisodeToAir = try container.decodeIfPresent(Episode.self, forKey: .nextEpisodeToAir)
         networks = try container.decodeIfPresent([Company].self, forKey: .networks)
         numberOfEpisodes = try container.decodeIfPresent(Int.self, forKey: .numberOfEpisodes)
         numberOfSeasons = try container.decodeIfPresent(Int.self, forKey: .numberOfSeasons)

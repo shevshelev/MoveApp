@@ -17,7 +17,7 @@ enum NetworkRequestType {
     case tvList(type: TvListType)
     case movieSearch(query: String)
     case tvSearch(query: String)
-    case single(id: Int)
+    case single(type: MovieType, id: Int)
     case latestMovie
     case latestTv
 }
@@ -75,12 +75,19 @@ class NetworkManager: NetworkManagerProtocol {
         switch type {
         case .movieList, .movieSearch:
             return try await decodeJSON(from: data, in: MovieResponse<Film>.self)
-        case .single, .latestMovie:
+        case .latestMovie:
             return try await decodeJSON(from: data, in: Film.self)
         case .tvList, .tvSearch:
             return try await decodeJSON(from: data, in: MovieResponse<Tv>.self)
         case .latestTv:
             return try await decodeJSON(from: data, in: Tv.self)
+        case .single (let (type, _)):
+            switch type {
+            case .film:
+                return try await decodeJSON(from: data, in: Film.self)
+            case .tv:
+                return try await decodeJSON(from: data, in: Tv.self)
+            }
         }
     }
     
@@ -114,8 +121,8 @@ class NetworkManager: NetworkManagerProtocol {
             components.path = "/3/tv/\(type.rawValue)"
         case .tvSearch:
             components.path = "/3/search/tv"
-        case .single(let id):
-            components.path = "/3/movie/\(id)"
+        case .single(let (type, id)):
+            components.path = "/3/\(type.rawValue)/\(id)"
         case .latestMovie:
             components.path = "/3/movie/latest"
         case .latestTv:

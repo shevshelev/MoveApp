@@ -12,6 +12,8 @@ protocol MainViewControllerInputProtocol: AnyObject {
 }
 
 protocol MainViewControllerOutputProtocol {
+    var view: MainViewControllerInputProtocol { get }
+    var sections: [MovieSectionViewModel] { get }
     init(view: MainViewControllerInputProtocol)
     func viewDidLoad()
     func didTapCell(at indexPath: IndexPath)
@@ -55,39 +57,25 @@ final class MainViewController: BaseViewController {
             switch sections[indexPath.section].type {
             case .nowPlaying:
                 if includeLatest {
-                    let viewModel = sections[indexPath.section].items[indexPath.item]
-                    let cell = collectionView.dequeueReusableCell(
-                        withReuseIdentifier: MovieCell().reuseId,
-                        for: indexPath) as? MovieCell
-                    cell?.viewModel = viewModel
-                    return cell
+                    return createCell(type: MovieCell.self, in: collectionView, at: indexPath)
                 } else {
-                    let viewModel = sections[indexPath.section].items[indexPath.item]
-                    let cell = collectionView.dequeueReusableCell(
-                        withReuseIdentifier: MovieBigCell().reuseId,
-                        for: indexPath) as? MovieBigCell
-                    cell?.viewModel = viewModel
-                    return cell
+                    return createCell(type: MovieBigCell.self, in: collectionView, at: indexPath)
                 }
             case .latest:
-                let viewModel = sections[indexPath.section].items[indexPath.item]
-                let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: MovieBigCell().reuseId,
-                    for: indexPath) as? MovieBigCell
-                cell?.viewModel = viewModel
-                return cell
+                return createCell(type: MovieBigCell.self, in: collectionView, at: indexPath)
             default:
-                let viewModel = sections[indexPath.section].items[indexPath.item]
-                let cell = collectionView.dequeueReusableCell(
-                    withReuseIdentifier: MovieCell().reuseId,
-                    for: indexPath) as? MovieCell
-                cell?.viewModel = viewModel
-                return cell
+                return createCell(type: MovieCell.self, in: collectionView, at: indexPath)
             }
         }
         createSupplementaryViewProvider(for: dataSource, with: MovieCollectionSection())
     }
-
+    
+    private func createCell<T: MovieCell>(type: T.Type, in collectionView: UICollectionView, at indexPath: IndexPath) -> T? {
+        let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: T().reuseId,
+            for: indexPath) as? T
+        return cell
+    }
     
     private func reloadData() {
         var snapshot = NSDiffableDataSourceSnapshot<MovieSectionViewModel, MovieCellViewModel>()
@@ -168,12 +156,17 @@ final class MainViewController: BaseViewController {
 // MARK: - UICollectionViewDelegate
 
 extension MainViewController {
+    
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        let cell = cell as? MovieCell
+        let viewModel = sections[indexPath.section].items[indexPath.item]
+        cell?.viewModel = viewModel
+    }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        print("Title: \(sections[indexPath.section].items[indexPath.item].title)")
+        presenter.didTapCell(at: indexPath)
     }
 }
-
-
 
 // MARK: - MainViewControllerInputProtocol
 

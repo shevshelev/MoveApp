@@ -20,12 +20,17 @@ class BaseViewController: UIViewController, UICollectionViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = backgroundColor
+//        setupNavBar()
+    }
+    override func viewWillAppear(_ animated: Bool) {
         setupNavBar()
     }
-    private func setupNavBar() {
+    func setupNavBar() {
         navigationController?.navigationBar.prefersLargeTitles = true
         let navBarAppearance = UINavigationBarAppearance()
         navBarAppearance.configureWithOpaqueBackground()
+        navBarAppearance.backgroundColor = backgroundColor
+        navBarAppearance.backButtonAppearance = UIBarButtonItemAppearance()
         navBarAppearance.titleTextAttributes = [
             .foregroundColor: UIColor.white,
             .font: UIFont.boldSystemFont(ofSize: 30)
@@ -34,7 +39,6 @@ class BaseViewController: UIViewController, UICollectionViewDelegate {
             .foregroundColor: UIColor.white,
             .font: UIFont.boldSystemFont(ofSize: 60)
         ]
-        navBarAppearance.backgroundColor = backgroundColor
         navigationController?.navigationBar.standardAppearance = navBarAppearance
         navigationController?.navigationBar.shadowImage = nil
     }

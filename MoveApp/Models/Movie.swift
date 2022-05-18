@@ -7,7 +7,14 @@
 
 import Foundation
 
+enum MovieType: String {
+    case film = "movie"
+    case tv
+}
+
 protocol MovieModelProtocol {
+    var dataType: MovieType { get }
+    var id: Int? { get }
     var title: String? { get }
     var originalTitle: String? { get }
     var backdropPath: String? { get }

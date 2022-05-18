@@ -7,21 +7,12 @@
 
 import Foundation
 
-protocol MovieInteractorInputProtocol {
-    init(presenter: MovieInteractorOutputProtocol, networkManager: NetworkManagerProtocol)
-    func fetchObjects()
-}
-
-protocol MovieInteractorOutputProtocol: AnyObject {
-    func objectsDidReceive(with dataStore: MoviePresenterDataStore)
-}
-
-final class MovieInteractor: MovieInteractorInputProtocol {
+final class MovieInteractor: MainInteractorInputProtocol {
     
-    private unowned let presenter: MovieInteractorOutputProtocol
+    private unowned let presenter: MainInteractorOutputProtocol
     private let networkManager: NetworkManagerProtocol
     
-    init(presenter: MovieInteractorOutputProtocol, networkManager: NetworkManagerProtocol) {
+    init(presenter: MainInteractorOutputProtocol, networkManager: NetworkManagerProtocol) {
         self.presenter = presenter
         self.networkManager = networkManager
     }
@@ -34,15 +25,16 @@ final class MovieInteractor: MovieInteractorInputProtocol {
             guard let upcoming = try? await networkManager.fetchMovie(for: .movieList(type: .upcoming)) as? MovieResponse<Film> else { return }
             guard let latest = try? await networkManager.fetchMovie(for: .latestMovie) as? Film else { return }
             
-            let dataStore = MoviePresenterDataStore(
-                latest: latest,
+            let dataStore = MainPresenterDataStore(
+                type: .film,
                 nowPlaying: nowPlaying.results,
-                popular: popular.results,
                 topRated: topRated.results,
+                popular: popular.results,
+                latest: latest,
                 upcoming: upcoming.results
             )
             
-            presenter.objectsDidReceive(with: dataStore)
+            presenter.objectsDidReceive!(with: dataStore)
             
         }
     }

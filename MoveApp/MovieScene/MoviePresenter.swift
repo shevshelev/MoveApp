@@ -7,18 +7,11 @@
 
 import Foundation
 
-struct MoviePresenterDataStore {
-    let latest: MovieModelProtocol
-    let nowPlaying: [MovieModelProtocol]
-    let popular: [MovieModelProtocol]
-    let topRated: [MovieModelProtocol]
-    let upcoming: [MovieModelProtocol]
-}
-
 final class MoviePresenter: MainViewControllerOutputProtocol {
-    
-    private unowned let view: MainViewControllerInputProtocol
-    var interactor: MovieInteractorInputProtocol!
+
+    unowned var view: MainViewControllerInputProtocol
+    var sections: [MovieSectionViewModel] = []
+    var interactor: MainInteractorInputProtocol!
     
     init(view: MainViewControllerInputProtocol) {
         self.view = view
@@ -28,23 +21,22 @@ final class MoviePresenter: MainViewControllerOutputProtocol {
         interactor.fetchObjects()
     }
     
-    func didTapCell(at indexPath: IndexPath) {
-        
-    }
+//    func didTapCell(at indexPath: IndexPath) {
+//        Router.showDetail(from: view)
+//    }
 }
 
-extension MoviePresenter: MovieInteractorOutputProtocol {
-    func objectsDidReceive(with dataStore: MoviePresenterDataStore) {
-        let sections: [MovieSectionViewModel] = [
-            MovieSectionViewModel(type: .latest, item: dataStore.latest),
+extension MoviePresenter: MainInteractorOutputProtocol {
+    func objectsDidReceive(with dataStore: MainPresenterDataStore) {
+        guard let latest = dataStore.latest else { return }
+        sections = [
+            MovieSectionViewModel(type: .latest, item: latest),
             MovieSectionViewModel(type: .nowPlaying, items: dataStore.nowPlaying),
-            MovieSectionViewModel(type: .upcoming, items: dataStore.upcoming),
+            MovieSectionViewModel(type: .upcoming, items: dataStore.upcoming ?? []),
             MovieSectionViewModel(type: .popular, items: dataStore.popular),
             MovieSectionViewModel(type: .topRated, items: dataStore.topRated)
         ]
         
         view.reloadData(for: sections)
     }
-    
-    
 }

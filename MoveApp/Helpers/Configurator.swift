@@ -11,6 +11,7 @@ import UIKit
 protocol CoufiguratorInputProtocol {
     static func configureMainViewController(with title: String, and imageName: String) -> UINavigationController
     static func configureMovieViewController(with title: String, and imageName: String) -> UINavigationController
+    static func configureTVViewController(with title: String, and imageName: String) -> UINavigationController
 }
 
 class Configurator: CoufiguratorInputProtocol {
@@ -49,6 +50,19 @@ class Configurator: CoufiguratorInputProtocol {
         viewController.presenter = presenter
         presenter.interactor = interactor
         return navigationController
+    }
+    
+    static func configureDetailViewController(for type: MovieType, and id: Int?) -> DetailViewController {
+        let detailVC = DetailViewController()
+        let presenter = DetailPresenter(view: detailVC)
+        let interactor = DetailInteractor(
+            id: id,
+            movieType: type,
+            presenter: presenter,
+            networkManager: NetworkManager.shared)
+        detailVC.presenter = presenter
+        presenter.interactor = interactor
+        return detailVC
     }
     
 }

@@ -8,6 +8,8 @@
 import Foundation
 
 protocol MovieCellViewModelProtocol {
+    var movieType: MovieType { get }
+    var movieId: Int? { get }
     var title: String { get }
     var posterURL: String? { get }
     var backdropURL: String? { get }
@@ -18,6 +20,14 @@ class MovieCellViewModel: MovieCellViewModelProtocol, Hashable {
     
     private let uuid: UUID
     private let movie: MovieModelProtocol
+    
+    var movieId: Int? {
+        movie.id
+    }
+    
+    var movieType: MovieType {
+        movie.dataType
+    }
     
     var title: String {
         guard let title = movie.title else { return "" }

@@ -8,18 +8,19 @@
 import Foundation
 
 class Film: Movie, MovieModelProtocol {
-    var adult: Bool?
-    var belongsToCollection: MovieCollection?
-    var budget: Int?
-    var imdbId: String?
-    var originalTitle: String?
-    var releaseDate: String?
-    var revenue: Int?
-    var runtime: Int?
-    var title: String?
-    var video: Bool?
-    var videos: [String: Video]?
-    var credits: Credit?
+    var dataType: MovieType = .film
+    var adult: Bool? = nil
+    var belongsToCollection: MovieCollection? = nil
+    var budget: Int? = nil
+    var imdbId: String? = nil
+    var originalTitle: String? = nil
+    var releaseDate: String? = nil
+    var revenue: Int? = nil
+    var runtime: Int? = nil
+    var title: String? = nil
+    var video: Bool? = nil
+    var videos: [String: Video]? = nil
+    var credits: Credit? = nil
     
     private enum CodingKeys: String, CodingKey {
         case adult
@@ -73,7 +74,7 @@ struct Staff: Decodable {
     let adult: Bool?
     let gender: Int?
     let id: Int?
-    let knowForDepartment: String
+    let knowForDepartment: String?
     let name: String?
     let originalName: String?
     let popularity: Double?
