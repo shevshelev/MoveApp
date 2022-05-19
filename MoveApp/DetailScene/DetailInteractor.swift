@@ -45,16 +45,10 @@ class DetailInteractor: DetailInteractorInputProtocol {
             switch movieType {
             case .film:
                 guard let movie = try await networkManager.fetchMovie(for: .single(type: movieType, id: movieId ?? 0)) as? Film else { return }
-                dataStore = DetailPresenterDataStore(
-                    title: movie.title ?? "",
-                    posterEndPoint: movie.backdropPath
-                )
+                dataStore = DetailPresenterDataStore(film: movie, show: nil)
             case .tv:
                 guard let movie = try await networkManager.fetchMovie(for: .single(type: movieType, id: movieId ?? 0)) as? Tv else { return }
-                dataStore = DetailPresenterDataStore(
-                    title: movie.title ?? "",
-                    posterEndPoint: movie.backdropPath
-                )
+                dataStore = DetailPresenterDataStore(film: nil, show: movie)
             }
             presenter.objectDidReceive(with: dataStore)
         }

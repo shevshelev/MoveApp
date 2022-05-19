@@ -15,10 +15,21 @@ enum MovieType: String {
 protocol MovieModelProtocol {
     var dataType: MovieType { get }
     var id: Int? { get }
-    var title: String? { get }
+    var title: String { get }
+    var tagline: String? { get }
     var originalTitle: String? { get }
+    var overview: String? { get }
+    var releaseDate: String? { get }
+    var originalLanguage: String? { get }
+    var spokenLanguages: [Language]? { get }
+    var runtime: Int? { get }
+    var genres: [Genre]? { get }
+    var voteAverage: Double? { get }
     var backdropPath: String? { get }
     var posterPath: String? { get }
+    var videos: Videos? { get }
+    var images: Images? { get }
+    var credits: Credit? { get }
 }
 
 struct MovieResponse<T: MovieModelProtocol & Decodable>: Decodable {
@@ -31,21 +42,24 @@ struct MovieResponse<T: MovieModelProtocol & Decodable>: Decodable {
 
 class Movie: Decodable {
     var backdropPath: String?
-    let genres: [Genre]?
+    var genres: [Genre]?
     let genreIds: [Int]?
     let homepage: String?
     let id: Int?
-    let originalLanguage: String?
-    let overview: String?
+    var originalLanguage: String?
+    var overview: String?
     let popularity: Double?
     var posterPath: String?
     let productionCompanies: [Company]?
     let productionCountries: [Country]?
-    let spokenLanguages: [Language]?
+    var spokenLanguages: [Language]?
     let status: String?
-    let tagline: String?
+    var tagline: String?
     let voteAverage: Double?
     let voiteCount: Int?
+    var videos: Videos?
+    var images: Images?
+    var credits: Credit?
 }
 
 struct MovieCollection: Decodable {
@@ -76,4 +90,59 @@ struct Language: Decodable {
     let englishName: String?
     let iso6391: String?
     let name: String?
+}
+
+struct Videos: Decodable {
+    let results: [Video]?
+}
+
+struct Video: Decodable {
+    let iso6391: String?
+    let iso31661: String?
+    let name: String?
+    let key: String?
+    let site: String?
+    let size: Int?
+    let type: String?
+    let official: Bool?
+    let publishedAt: String?
+    let id: String?
+}
+
+struct Images: Decodable {
+    let backdrops: [Image]?
+    let logos: [Image]?
+    let posters: [Image]?
+}
+
+struct Image: Decodable {
+    let aspectRatio: Double?
+    let height: Int?
+    let iso6391: String?
+    let filePath: String?
+    let voteAverage: Double?
+    let voteCount: Double?
+    let width: Int?
+}
+
+struct Credit: Decodable {
+    let cast: [Staff]?
+    let crew: [Staff]?
+}
+
+struct Staff: Decodable {
+    let adult: Bool?
+    let gender: Int?
+    let id: Int?
+    let knowForDepartment: String?
+    let name: String?
+    let originalName: String?
+    let popularity: Double?
+    let profilePath: String?
+    let castId: Int?
+    let character: String?
+    let creditId: String?
+    let order: Int?
+    let department: String?
+    let job: String?
 }

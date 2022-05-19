@@ -42,10 +42,10 @@ class MovieBigCell: MovieCell {
     override func setImage() {
         Task {
             if let backdropURL = viewModel.backdropURL {
-                try await movieImageView.fetchImage(with:backdropURL)
+                movieImageView.fetchImage(with:backdropURL)
             } else {
                 if let posterURl = viewModel.posterURL {
-                    try await movieImageView.fetchImage(with:posterURl)
+                    movieImageView.fetchImage(with:posterURl)
                 } else {
                     DispatchQueue.main.async {
                         self.setupStub()

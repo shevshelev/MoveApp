@@ -76,14 +76,32 @@ class BaseViewController: UIViewController, UICollectionViewDelegate {
         }
     }
     
+
+    
+    
 }
 
 // MARK: - UIScrollViewDelegate
 
 extension BaseViewController {
+    
+    
+    
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+//        print(navigationController?.navigationBar.bounds.height)
+//        print(scrollView.contentOffset)
         let tabbar = tabBarController as? TabBarController
         tabBarIsHidden.toggle()
         tabbar?.setTabBarHidden(tabBarIsHidden, animated: true)
+    }
+    func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
+        print("123")
+        return true
+    }
+    func scrollViewDidScrollToTop(_ scrollView: UIScrollView) {
+        print("456")
+    }
+    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+//        print(targetContentOffset)
     }
 }

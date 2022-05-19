@@ -9,23 +9,25 @@ import UIKit
 
 extension UIImageView {
     
-    func fetchImage(with endpoint: String) async throws {
-        let url = try await getImageURL(with: endpoint)
-        if let cachedImage = await getCachedImage(from: url) {
-            DispatchQueue.main.async {
-                self.image = cachedImage
+    func fetchImage(with endpoint: String) {
+        Task {
+            let url = try await getImageURL(with: endpoint)
+            if let cachedImage = await getCachedImage(from: url) {
+                DispatchQueue.main.async {
+                    self.image = cachedImage
+                }
             }
-        }
-        let (data, response) = try await URLSession.shared.data(from: url)
-        if url.lastPathComponent == response.url?.lastPathComponent {
-        await saveDataToCache(with: data, and: response)
-        guard let image = UIImage(data: data) else { throw NetworkError.noData }
-        DispatchQueue.main.async {
-            self.image = image
-        }
-        } else {
+            let (data, response) = try await URLSession.shared.data(from: url)
+            if url.lastPathComponent == response.url?.lastPathComponent {
+            await saveDataToCache(with: data, and: response)
+            guard let image = UIImage(data: data) else { throw NetworkError.noData }
             DispatchQueue.main.async {
-                self.image = nil
+                self.image = image
+            }
+            } else {
+                DispatchQueue.main.async {
+                    self.image = nil
+                }
             }
         }
     }

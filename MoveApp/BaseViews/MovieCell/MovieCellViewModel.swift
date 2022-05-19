@@ -30,7 +30,7 @@ class MovieCellViewModel: MovieCellViewModelProtocol, Hashable {
     }
     
     var title: String {
-        guard let title = movie.title else { return "" }
+        let title = movie.title
         if let original = movie.originalTitle, original != title {
             return "\(title) (\(original))"
         }

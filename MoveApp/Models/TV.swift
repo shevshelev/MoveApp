@@ -7,11 +7,16 @@
 
 import Foundation
 
-class Tv: Movie, MovieModelProtocol {
+protocol TvModelProtocol: MovieModelProtocol {
+    var status: String? { get }
+    var seasons: [Season]? { get }
+}
+
+class Tv: Movie, TvModelProtocol {
     var dataType: MovieType = .tv
     var createdBy: [Staff]?
     var episodeRunTime: [Int]?
-    var firstAirDate: String?
+    var releaseDate: String?
     var inProduction: Bool?
     var languages: [String]?
     var lastAirDate: String?
@@ -23,14 +28,24 @@ class Tv: Movie, MovieModelProtocol {
     var originCountry: [String]?
     var seasons: [Season]?
     var type: String?
-    var title: String?
+    var title: String
     var originalTitle: String?
+    
+    var runtime: Int? {
+        if let episodeRunTime = episodeRunTime {
+            var sum = 0
+            episodeRunTime.forEach { sum += $0 }
+            return sum / episodeRunTime.count
+        } else {
+            return nil
+        }
+    }
     
     private enum CodingKeys: String, CodingKey {
         
         case createdBy
         case episodeRunTime
-        case firstAirDate
+        case releaseDate = "first_air_date"
         case inProduction
         case languages
         case lastAirDate
@@ -46,11 +61,10 @@ class Tv: Movie, MovieModelProtocol {
         case title = "name"
     }
     required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
         let container = try decoder.container(keyedBy: CodingKeys.self)
         createdBy = try container.decodeIfPresent([Staff].self, forKey: .createdBy)
         episodeRunTime = try container.decodeIfPresent([Int].self, forKey: .episodeRunTime)
-        firstAirDate = try container.decodeIfPresent(String.self, forKey: .firstAirDate)
+        releaseDate = try container.decodeIfPresent(String.self, forKey: .releaseDate)
         inProduction = try container.decodeIfPresent(Bool.self, forKey: .inProduction)
         languages = try container.decodeIfPresent([String].self, forKey: .languages)
         lastAirDate = try container.decodeIfPresent(String.self, forKey: .lastAirDate)
@@ -63,7 +77,8 @@ class Tv: Movie, MovieModelProtocol {
         seasons = try container.decodeIfPresent([Season].self, forKey: .seasons)
         type = try container.decodeIfPresent(String.self, forKey: .type)
         originalTitle = try container.decodeIfPresent(String.self, forKey: .originalTitle)
-        title = try container.decodeIfPresent(String.self, forKey: .title)
+        title = try container.decode(String.self, forKey: .title)
+        try super.init(from: decoder)
     }
 }
 

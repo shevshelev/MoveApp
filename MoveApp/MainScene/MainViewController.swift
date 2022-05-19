@@ -26,7 +26,7 @@ final class MainViewController: BaseViewController {
     
     private var sections: [MovieSectionViewModel] = []
     private var dataSource: UICollectionViewDiffableDataSource<MovieSectionViewModel, MovieCellViewModel>?
-    
+        
     private lazy var collectionView = UICollectionView(
         frame: view.bounds,
         collectionViewLayout: createCompositionalLayout()
@@ -45,6 +45,10 @@ final class MainViewController: BaseViewController {
         super.viewDidLoad()
         setupCollectionView(collectionView)
         presenter.viewDidLoad()
+    }
+    
+    override func setupNavBar() {
+        super.setupNavBar()
     }
     
     override func setupCollectionView(_ collectionView: UICollectionView) {

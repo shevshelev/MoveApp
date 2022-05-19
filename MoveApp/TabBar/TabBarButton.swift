@@ -33,8 +33,8 @@ final class TabBarButton: UIButton {
 
     private func updateStyle() {
         tintColor = _isSelected ? .white : .white.withAlphaComponent(0.25)
-        widthAnchor.constraint(equalTo: superview!.widthAnchor, multiplier: 0.4).isActive = _isSelected
-        widthAnchor.constraint(equalTo: superview!.widthAnchor, multiplier: 0.15).isActive = !_isSelected
+        widthAnchor.constraint(equalTo: superview!.widthAnchor, multiplier: 0.45).isActive = _isSelected
+        widthAnchor.constraint(equalTo: superview!.widthAnchor, multiplier: 0.1375).isActive = !_isSelected
         
         setImage(_isSelected ? selectedImage : image, for: .normal)
         setTitle(_isSelected ? title : nil, for: .normal)

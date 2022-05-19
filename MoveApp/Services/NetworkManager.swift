@@ -138,13 +138,15 @@ class NetworkManager: NetworkManagerProtocol {
         var parameters: [String: String] = [:]
         parameters["api_key"] = apiKey
         parameters["include_adult"] = "true"
-        parameters["region"] = "RU"
+//        parameters["region"] = "RU"
         if let systemLanguage = NSLocale.preferredLanguages.first {
             parameters["language"] = String(systemLanguage.prefix(2))
         }
         switch type {
-        case .movieList, .single, .tvList, .latestMovie, .latestTv:
+        case .movieList, .tvList, .latestMovie, .latestTv:
             break
+        case .single:
+            parameters["append_to_response"] = "videos,images,credits"
         case .movieSearch(let query), .tvSearch(let query):
             parameters["query"] = query
         }

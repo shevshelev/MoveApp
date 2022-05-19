@@ -8,10 +8,12 @@
 import UIKit
 
 protocol DetailViewControllerInputProtocol: AnyObject {
-    func reloadData(with title: String, and endPoint: String?)
+    func reloadData()
 }
 
 protocol DetailViewControllerOutputProtocol {
+    var title: String? { get }
+    var genres: String? { get }
     init(view: DetailViewControllerInputProtocol)
     func viewDidLoad()
     func didTapFavouriteButton()
@@ -39,8 +41,18 @@ class DetailViewController: BaseViewController {
         view.addSubview(scrollView)
         scrollView.addSubview(titleImage)
         presenter.viewDidLoad()
-        navigationController?.isNavigationBarHidden = true
-        
+        navigationController?.isNavigationBarHidden = false
+    }
+    
+    override func setupNavBar() {
+        super.setupNavBar()
+        navigationController?.navigationBar.prefersLargeTitles = false
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .any, barMetrics: .default)
+        navigationController?.navigationBar.backgroundColor = .clear
+        let backButton = UIBarButtonItem(image: UIImage(systemName: "chevron.backward"), landscapeImagePhone: UIImage(systemName: "chevron.backward"), style: .done, target: self, action: #selector(buttonTaped))
+        backButton.tintColor = .white
+        navigationItem.leftBarButtonItem = backButton
     }
     
     override func viewWillLayoutSubviews() {
@@ -59,13 +71,15 @@ class DetailViewController: BaseViewController {
             
         ])
     }
+    
+    @objc private func buttonTaped() {
+        navigationController?.popViewController(animated: true)
+    }
 }
 
 extension DetailViewController: DetailViewControllerInputProtocol {
-    func reloadData(with title: String, and endpoint: String?) {
-        Task {
-            try await self.titleImage.fetchImage(with: endpoint ?? "")
-        }
-        self.title = title
+    func reloadData() {
+        print(presenter.title)
+        print(presenter.genres)
     }
 }
