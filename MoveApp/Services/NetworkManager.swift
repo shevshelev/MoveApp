@@ -84,6 +84,7 @@ class NetworkManager: NetworkManagerProtocol {
         case .single (let (type, _)):
             switch type {
             case .film:
+                print(try await decodeJSON(from: data, in: Film.self))
                 return try await decodeJSON(from: data, in: Film.self)
             case .tv:
                 return try await decodeJSON(from: data, in: Tv.self)
@@ -133,20 +134,19 @@ class NetworkManager: NetworkManagerProtocol {
         return url
     }
     
-    
     private func prepareParameters(for type: NetworkRequestType) async throws -> [String: String] {
         var parameters: [String: String] = [:]
+        let systemLanguage = NSLocale.preferredLanguages.first
         parameters["api_key"] = apiKey
         parameters["include_adult"] = "true"
-//        parameters["region"] = "RU"
-        if let systemLanguage = NSLocale.preferredLanguages.first {
-            parameters["language"] = String(systemLanguage.prefix(2))
-        }
+        parameters["region"] = Locale.current.regionCode
+        parameters["language"] = systemLanguage
         switch type {
         case .movieList, .tvList, .latestMovie, .latestTv:
             break
         case .single:
             parameters["append_to_response"] = "videos,images,credits"
+            parameters["include_image_language"] = "\(systemLanguage?.prefix(2) ?? ""),null"
         case .movieSearch(let query), .tvSearch(let query):
             parameters["query"] = query
         }

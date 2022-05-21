@@ -9,6 +9,7 @@ import UIKit
 
 class BaseViewController: UIViewController, UICollectionViewDelegate {
     
+    private lazy var tabbar = tabBarController as? TabBarController
     private var tabBarIsHidden: Bool = false
     private let backgroundColor = UIColor(
         red: 89 / 255,
@@ -20,9 +21,12 @@ class BaseViewController: UIViewController, UICollectionViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = backgroundColor
-//        setupNavBar()
     }
     override func viewWillAppear(_ animated: Bool) {
+        if tabBarIsHidden {
+            tabBarIsHidden.toggle()
+            tabbar?.setTabBarHidden(tabBarIsHidden, animated: true)
+        }
         setupNavBar()
     }
     func setupNavBar() {
@@ -88,20 +92,8 @@ extension BaseViewController {
     
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-//        print(navigationController?.navigationBar.bounds.height)
-//        print(scrollView.contentOffset)
-        let tabbar = tabBarController as? TabBarController
         tabBarIsHidden.toggle()
         tabbar?.setTabBarHidden(tabBarIsHidden, animated: true)
     }
-    func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
-        print("123")
-        return true
-    }
-    func scrollViewDidScrollToTop(_ scrollView: UIScrollView) {
-        print("456")
-    }
-    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-//        print(targetContentOffset)
-    }
+
 }

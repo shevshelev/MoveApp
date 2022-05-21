@@ -69,7 +69,9 @@ class TabBarController: UITabBarController {
 
     }
         
-    func setTabBarHidden(_ isHidden: Bool, animated: Bool) {
+    func setTabBarHidden(_ isHidden: Bool?, animated: Bool) {
+        guard let isHidden = isHidden else { return }
+
         let blok = {
             self.customTabBar.frame = self.customTabBar.frame.offsetBy(dx: 0, dy: isHidden ? 100 : -100)
         }

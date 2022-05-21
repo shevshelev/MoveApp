@@ -36,19 +36,40 @@ class DetailPresenter: DetailViewControllerOutputProtocol {
     var id: Int? {
         movie?.id
     }
+    
+    var titleLogo: String? {
+        guard let logo = movie?.images?.logos?.first?.filePath else { return nil }
+        return logo
+    }
+    
     var title: String? {
         movie?.title
     }
     var originalTitle: String? {
         movie?.originalTitle
     }
-    var releaseYear: String? {
-        guard let year = movie?.releaseDate?.prefix(4) else { return nil }
-        return String(year)
-    }
     var tagline: String? {
         movie?.tagline
     }
+    
+    var voteAverage: Double? {
+//        String(format: "%.2f", movie?.voteAverage ?? 0)
+        movie?.voteAverage
+    }
+    
+    
+    
+    
+    
+    var description: String {
+        """
+        ●\(movie?.genres?.reduce("") { "\($0 ?? "") \($1.name ?? "")" } ?? "")
+        ● \((movie?.runtime ?? 0) / 60) h \((movie?.runtime ?? 0) % 60) m
+        """
+            .replacingOccurrences(of: " и ", with: " ")
+            .lowercased()
+    }
+    
     var overview: String? {
         movie?.overview
     }
@@ -58,21 +79,12 @@ class DetailPresenter: DetailViewControllerOutputProtocol {
     var spokenLanguages: String? {
         movie?.spokenLanguages?.reduce("") { "\( $0 ?? "") \($1.name ?? "")" }
     }
-    var runtime: String {
-        "\((movie?.runtime ?? 0) / 60) h \((movie?.runtime ?? 0) % 60) m"
-    }
-    var genres: String? {
-        movie?.genres?.reduce("") { "\($0 ?? "") \($1.name ?? "")" }
-    }
-    var voteAverage: String? {
-        String(format: "%.2f", movie?.voteAverage ?? 0)
-    }
     var posterPath: String? {
         movie?.posterPath
     }
-    var images: [String?] {
-        var images:[String?] = []
-        movie?.images?.backdrops?.forEach { images.append($0.filePath) }
+    var images: [ImageCellViewModelProtocol] {
+        var images:[ImageCellViewModelProtocol] = []
+        movie?.images?.backdrops?.forEach { images.append(ImageCellViewModel(image: $0)) }
         return images
     }
     var cast: [String?] {

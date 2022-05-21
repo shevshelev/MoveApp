@@ -43,10 +43,8 @@ class MovieCell: UICollectionViewCell {
     }
     
     func setImage() {
-        Task {
-            if let posterURl = viewModel.posterURL {
-                try await movieImageView.fetchImage(with:posterURl)
-            }
+        if let posterURl = viewModel.posterURL {
+            movieImageView.fetchImage(with:posterURl)
         }
     }
 }

@@ -115,7 +115,11 @@ struct Images: Decodable {
     let posters: [Image]?
 }
 
-struct Image: Decodable {
+protocol ImageProtocol {
+    var filePath: String? { get }
+}
+
+struct Image: ImageProtocol, Decodable {
     let aspectRatio: Double?
     let height: Int?
     let iso6391: String?
