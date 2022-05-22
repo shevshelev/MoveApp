@@ -9,19 +9,22 @@ import Foundation
 
 protocol ImageCellViewModelProtocol {
     var imageEndpoin: String? { get }
-    init(image: ImageProtocol)
+    init(image: ImageProtocol?)
 }
 
 class ImageCellViewModel: ImageCellViewModelProtocol {
     
-    private let image: ImageProtocol
+//    private let image: ImageProtocol?
     
-    var imageEndpoin: String? {
-        image.filePath
+    var imageEndpoin: String?
+    
+    required init(image: ImageProtocol?) {
+//        self.image = image
+        imageEndpoin = image?.filePath
     }
-    
-    required init(image: ImageProtocol) {
-        self.image = image
+    convenience init(endPoint: String?) {
+        self.init(image: nil)
+        self.imageEndpoin = endPoint
     }
     
     

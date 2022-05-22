@@ -38,34 +38,40 @@ class DetailPresenter: DetailViewControllerOutputProtocol {
     }
     
     var titleLogo: String? {
-        guard let logo = movie?.images?.logos?.first?.filePath else { return nil }
-        return logo
+        guard let logos = movie?.images?.logos, !logos.isEmpty else { return nil }
+        guard let currentLanguage = Locale.preferredLanguages.first?.prefix(2) else { return nil }
+        let currentLanguageLogos = logos.filter {$0.iso6391 ?? "" == currentLanguage }
+        if !currentLanguageLogos.isEmpty {
+            return currentLanguageLogos.first?.filePath
+        } else {
+            return logos.first?.filePath
+        }
     }
     
     var title: String? {
         movie?.title
     }
     var originalTitle: String? {
-        movie?.originalTitle
+        if titleLogo != nil {
+            return title
+        } else if title == movie?.originalTitle {
+            return nil
+        } else {
+            return movie?.originalTitle
+        }
     }
     var tagline: String? {
         movie?.tagline
     }
-    
     var voteAverage: Double? {
-//        String(format: "%.2f", movie?.voteAverage ?? 0)
         movie?.voteAverage
     }
-    
-    
-    
-    
-    
     var description: String {
         """
         ●\(movie?.genres?.reduce("") { "\($0 ?? "") \($1.name ?? "")" } ?? "")
         ● \((movie?.runtime ?? 0) / 60) h \((movie?.runtime ?? 0) % 60) m
         """
+//            .replacingOccurrences(of: "нф", with: "научная фантастика")
             .replacingOccurrences(of: " и ", with: " ")
             .lowercased()
     }
@@ -84,7 +90,13 @@ class DetailPresenter: DetailViewControllerOutputProtocol {
     }
     var images: [ImageCellViewModelProtocol] {
         var images:[ImageCellViewModelProtocol] = []
-        movie?.images?.backdrops?.forEach { images.append(ImageCellViewModel(image: $0)) }
+        if !(movie?.images?.backdrops?.isEmpty ?? false) {
+            movie?.images?.backdrops?.forEach { images.append(ImageCellViewModel(image: $0)) }
+        } else if !(movie?.images?.posters?.isEmpty ?? false) {
+            movie?.images?.posters?.forEach { images.append(ImageCellViewModel(image: $0)) }
+        } else {
+            images.append(ImageCellViewModel(endPoint: movie?.posterPath))
+        }
         return images
     }
     var cast: [String?] {

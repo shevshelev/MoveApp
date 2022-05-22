@@ -16,8 +16,9 @@ protocol DetailViewControllerOutputProtocol {
     var titleLogo: String? { get }
     var originalTitle: String? { get }
     var tagline: String? { get }
-    var voteAverage: Double?
+    var voteAverage: Double? { get }
     var description: String { get }
+    var overview: String? { get }
     var images: [ImageCellViewModelProtocol] { get }
     init(view: DetailViewControllerInputProtocol)
     func viewDidLoad()
@@ -43,6 +44,7 @@ class DetailViewController: BaseViewController {
         collectionView.allowsSelection = false
         collectionView.isPagingEnabled = true
         collectionView.backgroundColor = view.backgroundColor
+        collectionView.contentInsetAdjustmentBehavior = .scrollableAxes
         return collectionView
     }()
     
@@ -79,7 +81,6 @@ class DetailViewController: BaseViewController {
     }()
     private lazy var taglineLabel: UILabel = {
        let label = UILabel()
-        
         label.adjustsFontSizeToFitWidth = true
         label.textColor = .white
         label.textAlignment = .center
@@ -88,18 +89,52 @@ class DetailViewController: BaseViewController {
     }()
     private lazy var voteLabel: UILabel = {
        let label = UILabel()
+        label.font = .boldSystemFont(ofSize: 30)
         label.adjustsFontSizeToFitWidth = true
         label.textAlignment = .center
         label.backgroundColor = .systemGray.withAlphaComponent(0.3)
+        label.layer.masksToBounds = true
+        label.layer.cornerRadius = 15
+        return label
+    }()
+    private lazy var descriptionLabel: UILabel = {
+       let label = UILabel()
+        label.adjustsFontSizeToFitWidth = true
+        label.textAlignment = .left
+        label.textColor = .white
+        label.numberOfLines = 0
+        return label
+    }()
+    private lazy var rateButton: UIButton = {
+        let button = UIButton()
+        button.backgroundColor = .systemRed
+        button.setTitle("Оценить!", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.layer.cornerRadius = 20
+        return button
+    }()
+    private lazy var favouriteButton: UIButton = {
+        let button = UIButton()
+        button.backgroundColor = .systemRed
+        button.setTitle("В избранное!", for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.layer.cornerRadius = 20
+        return button
+    }()
+    private lazy var overviewLabel: UILabel = {
+       let label = UILabel()
+//        label.adjustsFontSizeToFitWidth = true
+        label.textAlignment = .left
+        label.textColor = .white
+        label.numberOfLines = 0
         return label
     }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.addSubviews([imagesCollectionView, scrollView])
-        scrollView.addSubviews([gradientView, originalLabel, taglineLabel, voteLabel])
+        view.addSubviews([imagesCollectionView, scrollView, descriptionLabel])
+        scrollView.addSubviews([gradientView, originalLabel, taglineLabel, voteLabel, rateButton, favouriteButton, overviewLabel])
         presenter.viewDidLoad()
-//        navigationController?.isNavigationBarHidden = false
     }
     
     override func setupNavBar() {
@@ -122,7 +157,7 @@ class DetailViewController: BaseViewController {
     
     override func viewWillLayoutSubviews() {
         NSLayoutConstraint.activate([
-            imagesCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            imagesCollectionView.topAnchor.constraint(equalTo: view.topAnchor),
             imagesCollectionView.widthAnchor.constraint(equalTo: view.widthAnchor),
             imagesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             imagesCollectionView.heightAnchor.constraint(
@@ -150,8 +185,29 @@ class DetailViewController: BaseViewController {
             taglineLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             taglineLabel.heightAnchor.constraint(greaterThanOrEqualToConstant: 15),
             
-            voteLabel.topAnchor.constraint(equalTo: taglineLabel.bottomAnchor, constant: 5),
-//            voteLabel.
+            voteLabel.topAnchor.constraint(equalTo: taglineLabel.bottomAnchor, constant: 20),
+            voteLabel.heightAnchor.constraint(equalToConstant: 45),
+            voteLabel.widthAnchor.constraint(equalToConstant: 90),
+            voteLabel.leftAnchor.constraint(equalTo: view.leftAnchor, constant: view.frame.width / 4 - 30),
+            
+            descriptionLabel.topAnchor.constraint(equalTo: voteLabel.topAnchor),
+            descriptionLabel.heightAnchor.constraint(equalTo: voteLabel.heightAnchor),
+            descriptionLabel.leadingAnchor.constraint(equalTo: voteLabel.trailingAnchor, constant: 20),
+            descriptionLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
+            
+            rateButton.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 20),
+            rateButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
+            rateButton.widthAnchor.constraint(equalToConstant: view.frame.width / 2 - 20),
+            rateButton.heightAnchor.constraint(equalToConstant: 40),
+            
+            favouriteButton.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 20),
+            favouriteButton.leadingAnchor.constraint(equalTo: rateButton.trailingAnchor, constant: 10),
+            favouriteButton.widthAnchor.constraint(equalToConstant: view.frame.width / 2 - 20),
+            favouriteButton.heightAnchor.constraint(equalToConstant: 40),
+            
+            overviewLabel.topAnchor.constraint(equalTo: favouriteButton.bottomAnchor, constant: 20),
+            overviewLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
+            overviewLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8)
         ])
     }
     
@@ -161,7 +217,7 @@ class DetailViewController: BaseViewController {
     
     private func setVoteLabel() {
         guard let vote = presenter.voteAverage else { return }
-        voteLabel.textColor = vote < 3.0 ? .systemRed : vote < 8.0 ? .systemGray : .systemGreen
+        voteLabel.textColor = vote < 3.0 ? .systemRed : vote < 7.0 ? .systemGray : .systemGreen
         voteLabel.text = String(format: "%.2f", vote)
     }
     
@@ -170,7 +226,7 @@ class DetailViewController: BaseViewController {
         originalLabel.text = presenter.originalTitle
         if let logoEndpoint = presenter.titleLogo {
             gradientView.addSubview(titleImage)
-            titleImage.setConstraintsToSuperView(top: 10, left: 0, right: 0, bottom: -10)
+            titleImage.setConstraintsToSuperView(top: 10, left: 6, right: -6, bottom: -10)
             titleImage.fetchImage(with: logoEndpoint)
         } else {
             gradientView.addSubview(titleLabel)
@@ -197,6 +253,7 @@ class DetailViewController: BaseViewController {
 extension DetailViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        print(presenter.images.count)
         return presenter.images.count
     }
 
@@ -225,11 +282,11 @@ extension DetailViewController: UICollectionViewDelegateFlowLayout {
 
 extension DetailViewController: DetailViewControllerInputProtocol {
     func reloadData() {
-        print(presenter.title)
-        print(presenter.description)
-//        viewWillLayoutSubviews()
+        overviewLabel.text = presenter.overview
         taglineLabel.text = presenter.tagline
+        descriptionLabel.text = presenter.description
         setTitle()
+        setVoteLabel()
         imagesCollectionView.reloadData()
         
     }

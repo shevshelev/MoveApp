@@ -84,7 +84,6 @@ class NetworkManager: NetworkManagerProtocol {
         case .single (let (type, _)):
             switch type {
             case .film:
-                print(try await decodeJSON(from: data, in: Film.self))
                 return try await decodeJSON(from: data, in: Film.self)
             case .tv:
                 return try await decodeJSON(from: data, in: Tv.self)
@@ -131,6 +130,7 @@ class NetworkManager: NetworkManagerProtocol {
         }
         components.queryItems = params.map { URLQueryItem(name: $0, value: $1) }
         guard let url = components.url else { throw NetworkError.invalidURL }
+        print(url)
         return url
     }
     
@@ -146,7 +146,7 @@ class NetworkManager: NetworkManagerProtocol {
             break
         case .single:
             parameters["append_to_response"] = "videos,images,credits"
-            parameters["include_image_language"] = "\(systemLanguage?.prefix(2) ?? ""),null"
+            parameters["include_image_language"] = "\(systemLanguage?.prefix(2) ?? ""),en,null"
         case .movieSearch(let query), .tvSearch(let query):
             parameters["query"] = query
         }
