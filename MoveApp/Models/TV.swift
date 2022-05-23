@@ -42,10 +42,9 @@ class Tv: Movie, TvModelProtocol {
     }
     
     private enum CodingKeys: String, CodingKey {
-        
         case createdBy
         case episodeRunTime
-        case releaseDate = "first_air_date"
+        case releaseDate = "firstAirDate"
         case inProduction
         case languages
         case lastAirDate
@@ -57,14 +56,16 @@ class Tv: Movie, TvModelProtocol {
         case originCountry
         case seasons
         case type
-        case originalTitle = "original_name"
+        case originalTitle = "originalName"
         case title = "name"
     }
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        title = try container.decode(String.self, forKey: .title)
+        originalTitle = try container.decodeIfPresent(String.self, forKey: .originalTitle)
+        releaseDate = try container.decodeIfPresent(String.self, forKey: .releaseDate)
         createdBy = try container.decodeIfPresent([Staff].self, forKey: .createdBy)
         episodeRunTime = try container.decodeIfPresent([Int].self, forKey: .episodeRunTime)
-        releaseDate = try container.decodeIfPresent(String.self, forKey: .releaseDate)
         inProduction = try container.decodeIfPresent(Bool.self, forKey: .inProduction)
         languages = try container.decodeIfPresent([String].self, forKey: .languages)
         lastAirDate = try container.decodeIfPresent(String.self, forKey: .lastAirDate)
@@ -76,10 +77,19 @@ class Tv: Movie, TvModelProtocol {
         originCountry = try container.decodeIfPresent([String].self, forKey: .originCountry)
         seasons = try container.decodeIfPresent([Season].self, forKey: .seasons)
         type = try container.decodeIfPresent(String.self, forKey: .type)
-        originalTitle = try container.decodeIfPresent(String.self, forKey: .originalTitle)
-        title = try container.decode(String.self, forKey: .title)
         try super.init(from: decoder)
     }
+}
+
+struct Season: Decodable {
+    let airDate: String?
+    let episodes: [Episode]?
+    let episodeCount: Int?
+    let id: Int?
+    let name: String?
+    let overview: String?
+    let posterPath: String?
+    let seasonNumber: Int?
 }
 
 struct Episode: Decodable {
@@ -93,14 +103,4 @@ struct Episode: Decodable {
     let stillPath: String?
     let voteAverage: Double?
     let voteCount: Int?
-}
-
-struct Season: Decodable {
-    let airDate: String?
-    let episodeCount: Int?
-    let id: Int?
-    let name: String?
-    let overview: String?
-    let posterPath: String?
-    let seasonNumber: Int?
 }

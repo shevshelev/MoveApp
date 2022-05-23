@@ -14,10 +14,12 @@ protocol DetailInteractorInputProtocol {
         networkManager: NetworkManagerProtocol
     )
     func fetchObject()
+    func fetchEpisodes(at tvId: Int, in seasonNumber: Int)
 }
 
 protocol DetailInteractorOutputProtocol: AnyObject {
     func objectDidReceive(with dataStore: DetailPresenterDataStore)
+    func episodesDidReceive(with episode: [Episode])
 }
 
 class DetailInteractor: DetailInteractorInputProtocol {
@@ -53,6 +55,12 @@ class DetailInteractor: DetailInteractorInputProtocol {
             presenter.objectDidReceive(with: dataStore)
         }
     }
-    
+    func fetchEpisodes(at tvId: Int, in seasonNumber: Int) {
+        Task {
+            guard let season = try await networkManager.fetchMovie(for: .tvSeason(tvId: tvId, seasonNumber: seasonNumber)) as? Season else { return }
+            guard let episode = season.episodes else { return }
+            presenter.episodesDidReceive(with: episode)
+        }
+    }
     
 }

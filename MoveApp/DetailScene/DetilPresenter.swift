@@ -51,13 +51,14 @@ class DetailPresenter: DetailViewControllerOutputProtocol {
     var title: String? {
         movie?.title
     }
-    var originalTitle: String? {
+    var originalTitle: String {
+        let releaseYear = movie?.releaseDate?.prefix(4)
         if titleLogo != nil {
-            return title
+            return "\(title ?? "")(\(releaseYear ?? ""))"
         } else if title == movie?.originalTitle {
-            return nil
+            return "(\(releaseYear ?? ""))"
         } else {
-            return movie?.originalTitle
+            return "\(movie?.originalTitle ?? "")(\(releaseYear ?? ""))"
         }
     }
     var tagline: String? {
@@ -79,12 +80,12 @@ class DetailPresenter: DetailViewControllerOutputProtocol {
     var overview: String? {
         movie?.overview
     }
-    var originalLanguage: String? {
-        movie?.originalLanguage
-    }
-    var spokenLanguages: String? {
-        movie?.spokenLanguages?.reduce("") { "\( $0 ?? "") \($1.name ?? "")" }
-    }
+//    var originalLanguage: String? {
+//        movie?.originalLanguage
+//    }
+//    var spokenLanguages: String? {
+//        movie?.spokenLanguages?.reduce("") { "\( $0 ?? "") \($1.name ?? "")" }
+//    }
     var posterPath: String? {
         movie?.posterPath
     }
@@ -122,6 +123,17 @@ class DetailPresenter: DetailViewControllerOutputProtocol {
         return status
     }
     
+    var seasons: [SeasonCellViewModelProtocol]? {
+        if dataStore?.movieType == .tv {
+            var seasons: [SeasonCellViewModelProtocol] = []
+            dataStore?.show?.seasons?.forEach { seasons.append(SeasonCellViewModel(season: $0))}
+            return seasons
+        } else {
+            return nil
+        }
+    }
+    var episodes: [EpisodeCellViewModelProtocol] = []
+    
     
     required init(view: DetailViewControllerInputProtocol) {
         self.view = view
@@ -134,6 +146,11 @@ class DetailPresenter: DetailViewControllerOutputProtocol {
     func didTapFavouriteButton() {
         
     }
+    func didTapSectionCell(at indexPath: IndexPath) {
+        let season = seasons?[indexPath.item]
+        interactor.fetchEpisodes(at: id ?? 0, in: season?.seasonNumber ?? 0)
+    }
+    
     
     
 }
@@ -143,6 +160,13 @@ extension DetailPresenter: DetailInteractorOutputProtocol {
         self.dataStore = dataStore
         DispatchQueue.main.async {
             self.view.reloadData()
+        }
+    }
+    func episodesDidReceive(with episode: [Episode]) {
+        self.episodes = []
+        episode.forEach { self.episodes.append(EpisodeCellViewModel(episode: $0))}
+        DispatchQueue.main.async {
+            self.view.reloadEpisodes()
         }
     }
 }

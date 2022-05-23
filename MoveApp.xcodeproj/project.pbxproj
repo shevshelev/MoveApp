@@ -28,6 +28,10 @@
 		B88CC169283059780058168C /* MovieSectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B88CC168283059780058168C /* MovieSectionViewModel.swift */; };
 		B88CC16E2832336D0058168C /* TVPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B88CC16D2832336D0058168C /* TVPresenter.swift */; };
 		B88CC1702832337A0058168C /* TVInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B88CC16F2832337A0058168C /* TVInteractor.swift */; };
+		B8BD2941283B640100DE3235 /* SeasonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8BD2940283B640100DE3235 /* SeasonCell.swift */; };
+		B8BD2943283B64AF00DE3235 /* SeasonCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8BD2942283B64AF00DE3235 /* SeasonCellViewModel.swift */; };
+		B8BD2946283B987400DE3235 /* EpisodeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8BD2945283B987400DE3235 /* EpisodeCell.swift */; };
+		B8BD2948283B988700DE3235 /* EpisodeCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8BD2947283B988700DE3235 /* EpisodeCellViewModel.swift */; };
 		B8C80A8C282F9AD6001F0591 /* MovieCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8C80A8B282F9AD6001F0591 /* MovieCellViewModel.swift */; };
 		B8C80A8E282FD92E001F0591 /* MovieBigCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8C80A8D282FD92E001F0591 /* MovieBigCell.swift */; };
 		B8C80A9528303BFF001F0591 /* MovieCollectionSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8C80A9428303BFF001F0591 /* MovieCollectionSection.swift */; };
@@ -68,6 +72,10 @@
 		B88CC168283059780058168C /* MovieSectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieSectionViewModel.swift; sourceTree = "<group>"; };
 		B88CC16D2832336D0058168C /* TVPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVPresenter.swift; sourceTree = "<group>"; };
 		B88CC16F2832337A0058168C /* TVInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVInteractor.swift; sourceTree = "<group>"; };
+		B8BD2940283B640100DE3235 /* SeasonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeasonCell.swift; sourceTree = "<group>"; };
+		B8BD2942283B64AF00DE3235 /* SeasonCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeasonCellViewModel.swift; sourceTree = "<group>"; };
+		B8BD2945283B987400DE3235 /* EpisodeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodeCell.swift; sourceTree = "<group>"; };
+		B8BD2947283B988700DE3235 /* EpisodeCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodeCellViewModel.swift; sourceTree = "<group>"; };
 		B8C80A8B282F9AD6001F0591 /* MovieCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieCellViewModel.swift; sourceTree = "<group>"; };
 		B8C80A8D282FD92E001F0591 /* MovieBigCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieBigCell.swift; sourceTree = "<group>"; };
 		B8C80A9428303BFF001F0591 /* MovieCollectionSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieCollectionSection.swift; sourceTree = "<group>"; };
@@ -144,6 +152,8 @@
 			isa = PBXGroup;
 			children = (
 				B8DF80612838E0340094011F /* ImageCollectionView */,
+				B8BD293F283B63C000DE3235 /* SeasonsCollectionView */,
+				B8BD2944283B983A00DE3235 /* EpisodeCollectionView */,
 				B8727BC72834ECC700FE7B37 /* DetailViewController.swift */,
 				B8727BC92834ED1B00FE7B37 /* DetilPresenter.swift */,
 				B8727BCB2834ED2A00FE7B37 /* DetailInteractor.swift */,
@@ -158,6 +168,24 @@
 				B88CC16F2832337A0058168C /* TVInteractor.swift */,
 			);
 			path = TVScene;
+			sourceTree = "<group>";
+		};
+		B8BD293F283B63C000DE3235 /* SeasonsCollectionView */ = {
+			isa = PBXGroup;
+			children = (
+				B8BD2940283B640100DE3235 /* SeasonCell.swift */,
+				B8BD2942283B64AF00DE3235 /* SeasonCellViewModel.swift */,
+			);
+			path = SeasonsCollectionView;
+			sourceTree = "<group>";
+		};
+		B8BD2944283B983A00DE3235 /* EpisodeCollectionView */ = {
+			isa = PBXGroup;
+			children = (
+				B8BD2945283B987400DE3235 /* EpisodeCell.swift */,
+				B8BD2947283B988700DE3235 /* EpisodeCellViewModel.swift */,
+			);
+			path = EpisodeCollectionView;
 			sourceTree = "<group>";
 		};
 		B8C80A902830300E001F0591 /* Helpers */ = {
@@ -380,6 +408,7 @@
 				B8EA959F282B91840063C7DE /* MainViewController.swift in Sources */,
 				B8EA959B282B91840063C7DE /* AppDelegate.swift in Sources */,
 				B817F939282E2A4100957949 /* MainInteractor.swift in Sources */,
+				B8BD2943283B64AF00DE3235 /* SeasonCellViewModel.swift in Sources */,
 				B817F91C282CEF2100957949 /* TabBarController.swift in Sources */,
 				B8EA95B3282B92190063C7DE /* NetworkManager.swift in Sources */,
 				B8C80A9728303DAC001F0591 /* UICollectionView+Additions.swift in Sources */,
@@ -394,6 +423,7 @@
 				B817F93D282E6EEF00957949 /* TV.swift in Sources */,
 				B8C80A9528303BFF001F0591 /* MovieCollectionSection.swift in Sources */,
 				B8EA95B0282B91AA0063C7DE /* Film.swift in Sources */,
+				B8BD2948283B988700DE3235 /* EpisodeCellViewModel.swift in Sources */,
 				B88CC169283059780058168C /* MovieSectionViewModel.swift in Sources */,
 				B817F937282E294C00957949 /* MainPresenter.swift in Sources */,
 				B817F927282D38FB00957949 /* UIView+Additions.swift in Sources */,
@@ -402,6 +432,8 @@
 				B8C80A9E283045CC001F0591 /* MovieInteractor.swift in Sources */,
 				B88CC16E2832336D0058168C /* TVPresenter.swift in Sources */,
 				B8727BCA2834ED1B00FE7B37 /* DetilPresenter.swift in Sources */,
+				B8BD2946283B987400DE3235 /* EpisodeCell.swift in Sources */,
+				B8BD2941283B640100DE3235 /* SeasonCell.swift in Sources */,
 				B8EA959D282B91840063C7DE /* SceneDelegate.swift in Sources */,
 				B817F929282D392600957949 /* UIStackView+Additions.swift in Sources */,
 				B817F943282E8FDF00957949 /* UImageView+Additions.swift in Sources */,

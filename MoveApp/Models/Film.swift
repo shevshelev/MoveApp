@@ -44,7 +44,7 @@ class Film: Movie, FilmModelProtocol {
         belongsToCollection = try container.decodeIfPresent(MovieCollection.self, forKey: .belongsToCollection)
         budget = try container.decodeIfPresent(Int.self, forKey: .budget)
         imdbId = try container.decodeIfPresent(String.self, forKey: .imdbId)
-        originalTitle = try container.decodeIfPresent(String.self, forKey: .originalTitle)
+        originalTitle = try container.decode(String.self, forKey: .originalTitle)
         releaseDate = try container.decodeIfPresent(String.self, forKey: .releaseDate)
         revenue = try container.decodeIfPresent(Int.self, forKey: .revenue)
         runtime = try container.decodeIfPresent(Int.self, forKey: .runtime)

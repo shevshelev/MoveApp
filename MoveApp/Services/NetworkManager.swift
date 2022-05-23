@@ -20,6 +20,7 @@ enum NetworkRequestType {
     case single(type: MovieType, id: Int)
     case latestMovie
     case latestTv
+    case tvSeason(tvId: Int, seasonNumber: Int)
 }
 enum MovieListType: String {
     case nowPlaying = "now_playing"
@@ -88,6 +89,8 @@ class NetworkManager: NetworkManagerProtocol {
             case .tv:
                 return try await decodeJSON(from: data, in: Tv.self)
             }
+        case .tvSeason:
+            return try await decodeJSON(from: data, in: Season.self)
         }
     }
     
@@ -127,6 +130,8 @@ class NetworkManager: NetworkManagerProtocol {
             components.path = "/3/movie/latest"
         case .latestTv:
             components.path = "/3/tv/latest"
+        case .tvSeason(let (tvId, seasonNumber)):
+            components.path = "/3/tv/\(tvId)/season/\(seasonNumber)"
         }
         components.queryItems = params.map { URLQueryItem(name: $0, value: $1) }
         guard let url = components.url else { throw NetworkError.invalidURL }
@@ -142,7 +147,7 @@ class NetworkManager: NetworkManagerProtocol {
         parameters["region"] = Locale.current.regionCode
         parameters["language"] = systemLanguage
         switch type {
-        case .movieList, .tvList, .latestMovie, .latestTv:
+        case .movieList, .tvList, .latestMovie, .latestTv, .tvSeason:
             break
         case .single:
             parameters["append_to_response"] = "videos,images,credits"
