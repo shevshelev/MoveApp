@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B81341DE283CCE7D004BCEDC /* CreditCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B81341DD283CCE7D004BCEDC /* CreditCell.swift */; };
+		B81341E0283CCE8D004BCEDC /* CreditCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B81341DF283CCE8D004BCEDC /* CreditCellViewModel.swift */; };
+		B81341E2283CFB73004BCEDC /* 123.swift in Sources */ = {isa = PBXBuildFile; fileRef = B81341E1283CFB73004BCEDC /* 123.swift */; };
+		B81341E4283CFCE2004BCEDC /* BaseCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B81341E3283CFCE2004BCEDC /* BaseCollectionViewCell.swift */; };
 		B817F918282CD47100957949 /* CustomTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B817F917282CD47100957949 /* CustomTabBar.swift */; };
 		B817F91C282CEF2100957949 /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B817F91B282CEF2100957949 /* TabBarController.swift */; };
 		B817F922282D23EC00957949 /* FavouritesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B817F921282D23EC00957949 /* FavouritesViewController.swift */; };
@@ -51,6 +55,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		B81341DD283CCE7D004BCEDC /* CreditCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditCell.swift; sourceTree = "<group>"; };
+		B81341DF283CCE8D004BCEDC /* CreditCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreditCellViewModel.swift; sourceTree = "<group>"; };
+		B81341E1283CFB73004BCEDC /* 123.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 123.swift; sourceTree = "<group>"; };
+		B81341E3283CFCE2004BCEDC /* BaseCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseCollectionViewCell.swift; sourceTree = "<group>"; };
 		B817F917282CD47100957949 /* CustomTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabBar.swift; sourceTree = "<group>"; };
 		B817F91B282CEF2100957949 /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 		B817F921282D23EC00957949 /* FavouritesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesViewController.swift; sourceTree = "<group>"; };
@@ -107,6 +115,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B81341DC283CCE5E004BCEDC /* CreditsCollectionView */ = {
+			isa = PBXGroup;
+			children = (
+				B81341DD283CCE7D004BCEDC /* CreditCell.swift */,
+				B81341DF283CCE8D004BCEDC /* CreditCellViewModel.swift */,
+			);
+			path = CreditsCollectionView;
+			sourceTree = "<group>";
+		};
 		B817F914282CD2A400957949 /* TabBar */ = {
 			isa = PBXGroup;
 			children = (
@@ -151,6 +168,7 @@
 		B8727BC62834ECA600FE7B37 /* DetailScene */ = {
 			isa = PBXGroup;
 			children = (
+				B81341DC283CCE5E004BCEDC /* CreditsCollectionView */,
 				B8DF80612838E0340094011F /* ImageCollectionView */,
 				B8BD293F283B63C000DE3235 /* SeasonsCollectionView */,
 				B8BD2944283B983A00DE3235 /* EpisodeCollectionView */,
@@ -203,6 +221,7 @@
 				B8C80A9F283058EF001F0591 /* MovieSections */,
 				B817F931282D681300957949 /* MovieCell */,
 				B8C80A9828303E3C001F0591 /* BaseViewController.swift */,
+				B81341E3283CFCE2004BCEDC /* BaseCollectionViewCell.swift */,
 			);
 			path = BaseViews;
 			sourceTree = "<group>";
@@ -310,6 +329,7 @@
 				B8C80A902830300E001F0591 /* Helpers */,
 				B8DF805F2838D7890094011F /* Resources */,
 				B8DF80602838D79C0094011F /* Storyboards */,
+				B81341E1283CFB73004BCEDC /* 123.swift */,
 			);
 			path = MoveApp;
 			sourceTree = "<group>";
@@ -410,6 +430,7 @@
 				B817F939282E2A4100957949 /* MainInteractor.swift in Sources */,
 				B8BD2943283B64AF00DE3235 /* SeasonCellViewModel.swift in Sources */,
 				B817F91C282CEF2100957949 /* TabBarController.swift in Sources */,
+				B81341E0283CCE8D004BCEDC /* CreditCellViewModel.swift in Sources */,
 				B8EA95B3282B92190063C7DE /* NetworkManager.swift in Sources */,
 				B8C80A9728303DAC001F0591 /* UICollectionView+Additions.swift in Sources */,
 				B8C80A9C283045B9001F0591 /* MoviePresenter.swift in Sources */,
@@ -429,10 +450,13 @@
 				B817F927282D38FB00957949 /* UIView+Additions.swift in Sources */,
 				B8727BCE28351DF900FE7B37 /* Router.swift in Sources */,
 				B8DF80632838E0680094011F /* ImageCell.swift in Sources */,
+				B81341E2283CFB73004BCEDC /* 123.swift in Sources */,
 				B8C80A9E283045CC001F0591 /* MovieInteractor.swift in Sources */,
 				B88CC16E2832336D0058168C /* TVPresenter.swift in Sources */,
 				B8727BCA2834ED1B00FE7B37 /* DetilPresenter.swift in Sources */,
+				B81341DE283CCE7D004BCEDC /* CreditCell.swift in Sources */,
 				B8BD2946283B987400DE3235 /* EpisodeCell.swift in Sources */,
+				B81341E4283CFCE2004BCEDC /* BaseCollectionViewCell.swift in Sources */,
 				B8BD2941283B640100DE3235 /* SeasonCell.swift in Sources */,
 				B8EA959D282B91840063C7DE /* SceneDelegate.swift in Sources */,
 				B817F929282D392600957949 /* UIStackView+Additions.swift in Sources */,

@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SeasonCell: UICollectionViewCell {
+class SeasonCell: BaseCollectionViewCell {
     
     private lazy var nameLabel: UILabel = {
        let label = UILabel()
@@ -32,11 +32,6 @@ class SeasonCell: UICollectionViewCell {
             }
         }
     }
-    
-    var reuseId: String {
-        "SeasonCell"
-    }
-    
     var viewModel: SeasonCellViewModelProtocol! {
         didSet {
             setup()

@@ -43,7 +43,7 @@ final class MainViewController: BaseViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupCollectionView(collectionView)
+        setupBaseCollectionView(collectionView)
         presenter.viewDidLoad()
     }
     
@@ -51,8 +51,8 @@ final class MainViewController: BaseViewController {
         super.setupNavBar()
     }
     
-    override func setupCollectionView(_ collectionView: UICollectionView) {
-        super.setupCollectionView(collectionView)
+    override func setupBaseCollectionView(_ collectionView: UICollectionView) {
+        super.setupBaseCollectionView(collectionView)
         collectionView.registerCells(
             [MovieCell(), MovieBigCell()],
             and: MovieCollectionSection()

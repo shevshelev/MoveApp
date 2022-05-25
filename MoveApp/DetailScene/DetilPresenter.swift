@@ -38,16 +38,17 @@ class DetailPresenter: DetailViewControllerOutputProtocol {
     }
     
     var titleLogo: String? {
-        guard let logos = movie?.images?.logos, !logos.isEmpty else { return nil }
-        guard let currentLanguage = Locale.preferredLanguages.first?.prefix(2) else { return nil }
+        guard let logos = movie?.images?.logos, !logos.isEmpty else { print("no logo"); return nil }
+        guard let currentLanguage = Locale.preferredLanguages.first?.prefix(2) else {print("hernya"); return nil }
         let currentLanguageLogos = logos.filter {$0.iso6391 ?? "" == currentLanguage }
         if !currentLanguageLogos.isEmpty {
+            print("Current language logos \(currentLanguageLogos.count)")
             return currentLanguageLogos.first?.filePath
         } else {
+            print("Logos \(logos.count)")
             return logos.first?.filePath
         }
     }
-    
     var title: String? {
         movie?.title
     }
@@ -72,22 +73,11 @@ class DetailPresenter: DetailViewControllerOutputProtocol {
         ●\(movie?.genres?.reduce("") { "\($0 ?? "") \($1.name ?? "")" } ?? "")
         ● \((movie?.runtime ?? 0) / 60) h \((movie?.runtime ?? 0) % 60) m
         """
-//            .replacingOccurrences(of: "нф", with: "научная фантастика")
             .replacingOccurrences(of: " и ", with: " ")
             .lowercased()
     }
-    
     var overview: String? {
         movie?.overview
-    }
-//    var originalLanguage: String? {
-//        movie?.originalLanguage
-//    }
-//    var spokenLanguages: String? {
-//        movie?.spokenLanguages?.reduce("") { "\( $0 ?? "") \($1.name ?? "")" }
-//    }
-    var posterPath: String? {
-        movie?.posterPath
     }
     var images: [ImageCellViewModelProtocol] {
         var images:[ImageCellViewModelProtocol] = []
@@ -100,9 +90,9 @@ class DetailPresenter: DetailViewControllerOutputProtocol {
         }
         return images
     }
-    var cast: [String?] {
-        var cast:[String?] = []
-        movie?.credits?.cast?.forEach {cast.append(String($0.id ?? 0)) }
+    var cast: [CreditCellViewModelProtocol] {
+        var cast:[CreditCellViewModelProtocol] = []
+        movie?.credits?.cast?.forEach {cast.append(CreditCellViewModel(staff: $0)) }
         return cast
     }
     var crew: [String?] {
@@ -112,17 +102,16 @@ class DetailPresenter: DetailViewControllerOutputProtocol {
     }
     var budget: String? {
         guard let budget = dataStore?.film?.budget else { return nil }
-        return String(budget)
+        return "\(budget)$"
     }
     var revenue: String? {
         guard let revenue = dataStore?.film?.revenue else { return nil }
-        return String(revenue)
+        return "\(revenue)$"
     }
     var status: String? {
         guard let status = dataStore?.show?.status else { return nil }
         return status
     }
-    
     var seasons: [SeasonCellViewModelProtocol]? {
         if dataStore?.movieType == .tv {
             var seasons: [SeasonCellViewModelProtocol] = []

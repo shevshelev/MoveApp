@@ -32,7 +32,7 @@ class Tv: Movie, TvModelProtocol {
     var originalTitle: String?
     
     var runtime: Int? {
-        if let episodeRunTime = episodeRunTime {
+        if let episodeRunTime = episodeRunTime, !episodeRunTime.isEmpty {
             var sum = 0
             episodeRunTime.forEach { sum += $0 }
             return sum / episodeRunTime.count

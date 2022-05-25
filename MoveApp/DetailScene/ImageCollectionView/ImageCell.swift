@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ImageCell: UICollectionViewCell {
+class ImageCell: BaseCollectionViewCell {
     
     private let color = UIColor(
         red: 89 / 255,
@@ -15,10 +15,6 @@ class ImageCell: UICollectionViewCell {
         blue: 149 / 255,
         alpha: 1
     )
-    
-    var reuseId: String {
-        "ImageCell"
-    }
     
     var viewModel: ImageCellViewModelProtocol! {
         didSet {

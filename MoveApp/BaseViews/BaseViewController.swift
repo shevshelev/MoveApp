@@ -17,6 +17,8 @@ class BaseViewController: UIViewController, UICollectionViewDelegate {
         blue: 149 / 255,
         alpha: 1
     )
+    
+    var baseScrollView: UIScrollView?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,9 +49,10 @@ class BaseViewController: UIViewController, UICollectionViewDelegate {
         navigationController?.navigationBar.shadowImage = nil
     }
     
-    func setupCollectionView(_ collectionView: UICollectionView) {
+    func setupBaseCollectionView(_ collectionView: UICollectionView) {
         collectionView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.addSubview(collectionView)
+        baseScrollView = collectionView
         collectionView.backgroundColor = backgroundColor
         collectionView.delegate = self
         collectionView.registerCells([MovieCell(), MovieBigCell()], and: MovieCollectionSection())
@@ -89,11 +92,11 @@ class BaseViewController: UIViewController, UICollectionViewDelegate {
 
 extension BaseViewController {
     
-    
-    
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        tabBarIsHidden.toggle()
-        tabbar?.setTabBarHidden(tabBarIsHidden, animated: true)
+        if scrollView == baseScrollView {
+            tabBarIsHidden.toggle()
+            tabbar?.setTabBarHidden(tabBarIsHidden, animated: true)
+        }
     }
 
 }

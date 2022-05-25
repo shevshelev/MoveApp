@@ -25,6 +25,7 @@ protocol DetailViewControllerOutputProtocol {
     var budget: String? { get }
     var revenue: String? { get }
     var images: [ImageCellViewModelProtocol] { get }
+    var cast: [CreditCellViewModelProtocol] { get }
     init(view: DetailViewControllerInputProtocol)
     func viewDidLoad()
     func didTapFavouriteButton()
@@ -33,200 +34,121 @@ protocol DetailViewControllerOutputProtocol {
 
 class DetailViewController: BaseViewController {
     
-    var presenter: DetailViewControllerOutputProtocol!
-    
-    private lazy var imagesCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        layout.minimumLineSpacing = 0
-        let collectionView = UICollectionView(
-            frame: CGRect.zero,
-            collectionViewLayout: layout
-        )
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.register(ImageCell.self, forCellWithReuseIdentifier: ImageCell().reuseId)
-        collectionView.dataSource = self
-        collectionView.delegate = self
-        collectionView.allowsSelection = false
-        collectionView.isPagingEnabled = true
-        collectionView.backgroundColor = view.backgroundColor
-        collectionView.contentInsetAdjustmentBehavior = .never
-        return collectionView
-    }()
-    
+    private lazy var imagesCollectionView = createCollectionView(
+        minimumLineSpacing: 0,
+        cell: ImageCell(),
+        allowSelection: false
+    )
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
-        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.contentInsetAdjustmentBehavior = .never
+//        scrollView.bounces = false
+//        scrollView.zoom(to: imagesCollectionView.frame, animated: true)
+        
+        scrollView.delegate = self
         return scrollView
     }()
-    
     private lazy var gradientView = UIView()
-    
+    private lazy var sublayerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = self.view.backgroundColor
+        return view
+    }()
     private lazy var titleImage: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()
-    private lazy var titleLabel: UILabel = {
-       let label = UILabel()
-        label.font = .boldSystemFont(ofSize: 60)
-        label.adjustsFontSizeToFitWidth = true
-        label.textAlignment = .center
-        label.textColor = .white
-        return label
-    }()
+    private lazy var titleLabel = createLabel(
+        font: .boldSystemFont(ofSize: 60),
+        alignment: .center,
+        color: .white,
+        withSublayer: false, withTitle: nil
+    )
+    private lazy var originalLabel = createLabel(
+        font: .systemFont(ofSize: 12),
+        alignment: .center,
+        color: .systemGray,
+        withSublayer: false, withTitle: nil
+    )
+    private lazy var taglineLabel = createLabel(
+        font: .systemFont(ofSize: 17),
+        alignment: .center,
+        color: .white,
+        withSublayer: false, withTitle: nil
+    )
+    private lazy var voteLabel = createLabel(
+        font: .systemFont(ofSize: 30),
+        alignment: .center,
+        color: .systemGray.withAlphaComponent(0.3),
+        withSublayer: true,
+        withTitle: nil
+    )
+    private lazy var descriptionLabel = createLabel(
+        font: .systemFont(ofSize: 17),
+        alignment: .left,
+        color: .white,
+        withSublayer: false,
+        withTitle: nil
+    )
+    private lazy var rateButton = createButton(with: "Оценить!")
+    private lazy var favouriteButton = createButton(with: "В избранное!")
+    private lazy var overviewLabel = createLabel(
+        font: .systemFont(ofSize: 17),
+        alignment: .left,
+        color: .white,
+        withSublayer: false,
+        withTitle: nil
+    )
+    private lazy var seasonsCollectionView = createCollectionView(
+        minimumLineSpacing: 10,
+        cell: SeasonCell(),
+        allowSelection: true
+    )
+    private lazy var episodeCollectionView = createCollectionView(
+        minimumLineSpacing: 10,
+        cell: EpisodeCell(),
+        allowSelection: false
+    )
+    private lazy var budgetView = createLabel(
+        font: .boldSystemFont(ofSize: 27),
+        alignment: .center,
+        color: .white,
+        withSublayer: true,
+        withTitle: "Bubget:"
+    )
+    private lazy var revenueView = createLabel(
+        font: .boldSystemFont(ofSize: 27),
+        alignment: .center,
+        color: .white,
+        withSublayer: true,
+        withTitle: "Revenu:"
+    )
+
+    private lazy var castCollectionView = createCollectionView(
+        minimumLineSpacing: 10,
+        cell: CreditCell(),
+        allowSelection: false
+    )
     
-    private lazy var originalLabel: UILabel = {
-       let label = UILabel()
-        label.font = .systemFont(ofSize: 12)
-        label.adjustsFontSizeToFitWidth = true
-        label.textAlignment = .center
-        label.textColor = .systemGray
-        return label
-    }()
-    private lazy var taglineLabel: UILabel = {
-       let label = UILabel()
-        label.adjustsFontSizeToFitWidth = true
-        label.textColor = .white
-        label.textAlignment = .center
-        label.numberOfLines = 0
-        return label
-    }()
-    private lazy var voteLabel: UILabel = {
-       let label = UILabel()
-        label.font = .boldSystemFont(ofSize: 30)
-        label.adjustsFontSizeToFitWidth = true
-        label.textAlignment = .center
-        label.backgroundColor = .systemGray.withAlphaComponent(0.3)
-        label.layer.masksToBounds = true
-        label.layer.cornerRadius = 15
-        return label
-    }()
-    private lazy var descriptionLabel: UILabel = {
-       let label = UILabel()
-        label.adjustsFontSizeToFitWidth = true
-        label.textAlignment = .left
-        label.textColor = .white
-        label.numberOfLines = 0
-        return label
-    }()
-    private lazy var rateButton: UIButton = {
-        let button = UIButton()
-        button.backgroundColor = .systemRed
-        button.setTitle("Оценить!", for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 20
-        return button
-    }()
-    private lazy var favouriteButton: UIButton = {
-        let button = UIButton()
-        button.backgroundColor = .systemRed
-        button.setTitle("В избранное!", for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 20
-        return button
-    }()
-    private lazy var overviewLabel: UILabel = {
-       let label = UILabel()
-        label.textAlignment = .left
-        label.textColor = .white
-        label.numberOfLines = 0
-        return label
-    }()
-    private lazy var seasonsCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        layout.minimumLineSpacing = 10
-        let collectionView = UICollectionView(
-            frame: CGRect.zero,
-            collectionViewLayout: layout
-        )
-        collectionView.register(SeasonCell.self, forCellWithReuseIdentifier: SeasonCell().reuseId)
-        collectionView.dataSource = self
-        collectionView.delegate = self
-        collectionView.backgroundColor = view.backgroundColor
-        collectionView.allowsSelection = true
-        collectionView.showsHorizontalScrollIndicator = false
-        return collectionView
-    }()
-    
-    private lazy var episodeCollectionView: UICollectionView = {
-        let layout = UICollectionViewFlowLayout()
-        layout.scrollDirection = .horizontal
-        layout.minimumLineSpacing = 10
-        let collectionView = UICollectionView(
-            frame: CGRect.zero,
-            collectionViewLayout: layout
-        )
-        collectionView.register(EpisodeCell.self, forCellWithReuseIdentifier: EpisodeCell().reuseId)
-        collectionView.dataSource = self
-        collectionView.delegate = self
-        collectionView.backgroundColor = view.backgroundColor
-        collectionView.allowsSelection = false
-        collectionView.showsHorizontalScrollIndicator = false
-        return collectionView
-    }()
-    
-    private lazy var budgetView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemGray.withAlphaComponent(0.5)
-        view.layer.cornerRadius = 15
-        return view
-    }()
-    
-    private lazy var revenueView: UIView = {
-        let view = UIView()
-        view.backgroundColor = .systemGray.withAlphaComponent(0.5)
-        view.layer.cornerRadius = 15
-        return view
-    }()
-    private lazy var budgetTitle: UILabel = {
-        let label = UILabel()
-        label.adjustsFontSizeToFitWidth = true
-        label.textAlignment = .left
-        label.text = "Budget:"
-        label.textColor = .white
-        return label
-    }()
-    private lazy var revenueTitle: UILabel = {
-        let label = UILabel()
-        label.adjustsFontSizeToFitWidth = true
-        label.textAlignment = .left
-        label.text = "Revenue:"
-        label.textColor = .white
-        return label
-    }()
-    private lazy var budgetLabel: UILabel = {
-        let label = UILabel()
-        label.adjustsFontSizeToFitWidth = true
-        label.textColor = .systemRed
-        label.font = .boldSystemFont(ofSize: 30)
-        label.textAlignment = .center
-        return label
-    }()
-    private lazy var revenueLabel: UILabel = {
-        let label = UILabel()
-        label.adjustsFontSizeToFitWidth = true
-        label.font = .boldSystemFont(ofSize: 30)
-        label.textAlignment = .center
-        return label
-    }()
-    
+    var presenter: DetailViewControllerOutputProtocol!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.addSubviews([imagesCollectionView, scrollView, descriptionLabel])
-        scrollView.addSubviews([gradientView, originalLabel, taglineLabel, voteLabel, rateButton, favouriteButton, overviewLabel])
+        view.addSubviews([
+//            imagesCollectionView,
+            scrollView
+        ])
+        scrollView.addSubviews([
+            imagesCollectionView,
+            gradientView, sublayerView, originalLabel, taglineLabel, voteLabel, descriptionLabel, rateButton, favouriteButton, overviewLabel, castCollectionView])
         presenter.viewDidLoad()
     }
     
     override func setupNavBar() {
         super.setupNavBar()
+//        navigationController?.navigationBar.isHidden = true
         navigationController?.navigationBar.prefersLargeTitles = false
-        navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
-        navigationController?.navigationBar.shadowImage = UIImage()
-        navigationController?.navigationBar.backgroundColor = .clear
         navigationController?.navigationBar.isTranslucent = true
         let backButton = UIBarButtonItem(
             image: UIImage(systemName: "chevron.backward"),
@@ -240,24 +162,31 @@ class DetailViewController: BaseViewController {
     }
     
     override func viewWillLayoutSubviews() {
+        
         NSLayoutConstraint.activate([
-            imagesCollectionView.topAnchor.constraint(equalTo: view.topAnchor),
-            imagesCollectionView.widthAnchor.constraint(equalTo: view.widthAnchor),
-            imagesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            imagesCollectionView.heightAnchor.constraint(
-                equalTo: imagesCollectionView.widthAnchor,
-                multiplier: 0.5642
-            ),
             
+            imagesCollectionView.topAnchor.constraint(equalTo: view.topAnchor),
+
+            imagesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            imagesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            scrollView.heightAnchor.constraint(equalTo: view.heightAnchor),
             
-            gradientView.bottomAnchor.constraint(equalTo: imagesCollectionView.bottomAnchor, constant: 20),
+            imagesCollectionView.bottomAnchor.constraint(equalTo: gradientView.centerYAnchor),
+            
+            gradientView.centerYAnchor.constraint(equalTo: scrollView.topAnchor, constant: view.frame.width * 0.5642),
+//            gradientView.centerYAnchor.constraint(equalTo: imagesCollectionView.bottomAnchor),
             gradientView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             gradientView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             gradientView.heightAnchor.constraint(equalToConstant: 90),
+            
+            sublayerView.topAnchor.constraint(equalTo: gradientView.bottomAnchor),
+            sublayerView.leadingAnchor.constraint(equalTo: gradientView.leadingAnchor),
+            sublayerView.trailingAnchor.constraint(equalTo: gradientView.trailingAnchor),
+            
             
             originalLabel.bottomAnchor.constraint(equalTo: gradientView.bottomAnchor),
             originalLabel.centerXAnchor.constraint(equalTo: gradientView.centerXAnchor),
@@ -291,7 +220,14 @@ class DetailViewController: BaseViewController {
             
             overviewLabel.topAnchor.constraint(equalTo: favouriteButton.bottomAnchor, constant: 20),
             overviewLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
-            overviewLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8)
+            overviewLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
+            
+            castCollectionView.leadingAnchor.constraint(equalTo: overviewLabel.leadingAnchor),
+            castCollectionView.trailingAnchor.constraint(equalTo: overviewLabel.trailingAnchor),
+            castCollectionView.heightAnchor.constraint(equalToConstant: 200),
+            castCollectionView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -100),
+            
+            sublayerView.bottomAnchor.constraint(equalTo: castCollectionView.bottomAnchor, constant: -300)
         ])
     }
     
@@ -306,12 +242,21 @@ class DetailViewController: BaseViewController {
     }
     
     private func setTitle() {
+        scrollView.zoom(to: imagesCollectionView.frame, animated: true)
         addVerticalGradientLayer()
         originalLabel.text = presenter.originalTitle
         if let logoEndpoint = presenter.titleLogo {
+            print(logoEndpoint)
             gradientView.addSubview(titleImage)
             titleImage.setConstraintsToSuperView(top: 10, left: 6, right: -6, bottom: -10)
             titleImage.fetchImage(with: logoEndpoint)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                if self.titleImage.image == nil {
+                    self.gradientView.addSubview(self.titleLabel)
+                    self.titleLabel.setConstraintsToSuperView()
+                    self.titleLabel.text = self.presenter.title
+                }
+            }
         } else {
             gradientView.addSubview(titleLabel)
             titleLabel.setConstraintsToSuperView()
@@ -321,6 +266,7 @@ class DetailViewController: BaseViewController {
     
     private func setSeasonsCollectionView() {
         if let seasons = presenter.seasons, !seasons.isEmpty {
+            print("-----------")
             scrollView.addSubviews([seasonsCollectionView, episodeCollectionView])
             seasonsCollectionView.delegate?.collectionView?(seasonsCollectionView, didSelectItemAt: IndexPath(item: 0, section: 0))
             NSLayoutConstraint.activate([
@@ -332,48 +278,36 @@ class DetailViewController: BaseViewController {
                 episodeCollectionView.topAnchor.constraint(equalTo: seasonsCollectionView.bottomAnchor),
                 episodeCollectionView.leadingAnchor.constraint(equalTo: seasonsCollectionView.leadingAnchor),
                 episodeCollectionView.trailingAnchor.constraint(equalTo: seasonsCollectionView.trailingAnchor),
-                episodeCollectionView.heightAnchor.constraint(equalToConstant: 150)
+                episodeCollectionView.heightAnchor.constraint(equalToConstant: 100),
+                castCollectionView.topAnchor.constraint(equalTo: episodeCollectionView.bottomAnchor, constant: 20)
             ])
+        } else {
+            print("++++++++++")
+//            castCollectionView.topAnchor.constraint(equalTo: overviewLabel.bottomAnchor, constant: 5).isActive = true
         }
     }
     
     private func setBudgetLabel() {
-        if let budget = presenter.budget, let revenue = presenter.revenue {
+        if presenter.budget != nil, presenter.revenue != nil {
             scrollView.addSubviews([budgetView, revenueView])
-            budgetView.addSubviews([budgetTitle,budgetLabel])
-            revenueView.addSubviews([revenueTitle, revenueLabel])
-            revenueLabel.text = "\(revenue) $"
-            budgetLabel.text = "\(budget) $"
-            revenueLabel.textColor = budget < revenue ? .systemGreen : .systemRed
+            budgetView.text = presenter.budget
+            revenueView.text = presenter.revenue
+
             NSLayoutConstraint.activate([
-                budgetView.topAnchor.constraint(equalTo: overviewLabel.bottomAnchor, constant: 20),
+                budgetView.topAnchor.constraint(equalTo: overviewLabel.bottomAnchor, constant: 5),
                 budgetView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
                 budgetView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.5, constant: -20),
-                budgetView.heightAnchor.constraint(equalToConstant: 60),
+                budgetView.heightAnchor.constraint(equalToConstant: 45),
                 
                 revenueView.topAnchor.constraint(equalTo: budgetView.topAnchor),
                 revenueView.leadingAnchor.constraint(equalTo: budgetView.trailingAnchor, constant: 20),
                 revenueView.widthAnchor.constraint(equalTo: budgetView.widthAnchor),
                 revenueView.heightAnchor.constraint(equalTo: budgetView.heightAnchor),
                 
-                budgetTitle.topAnchor.constraint(equalTo: budgetView.topAnchor, constant: 5),
-                budgetTitle.leadingAnchor.constraint(equalTo: budgetView.leadingAnchor, constant: 5),
-                budgetTitle.widthAnchor.constraint(equalTo: budgetView.widthAnchor, constant: -10),
-                budgetTitle.heightAnchor.constraint(equalToConstant: 12),
-                
-                revenueTitle.topAnchor.constraint(equalTo: revenueView.topAnchor, constant: 5),
-                revenueTitle.leadingAnchor.constraint(equalTo: revenueView.leadingAnchor, constant: 5),
-                revenueTitle.widthAnchor.constraint(equalTo: revenueView.widthAnchor, constant: -10),
-                revenueTitle.heightAnchor.constraint(equalToConstant: 12),
-                
-                budgetLabel.topAnchor.constraint(equalTo: budgetTitle.bottomAnchor),
-                budgetLabel.leadingAnchor.constraint(equalTo: budgetTitle.leadingAnchor),
-                budgetLabel.trailingAnchor.constraint(equalTo: budgetTitle.trailingAnchor),
-                
-                revenueLabel.topAnchor.constraint(equalTo: revenueTitle.bottomAnchor),
-                revenueLabel.leadingAnchor.constraint(equalTo: revenueTitle.leadingAnchor),
-                revenueLabel.trailingAnchor.constraint(equalTo: revenueTitle.trailingAnchor),
+                castCollectionView.topAnchor.constraint(equalTo: budgetView.bottomAnchor, constant: 5)
             ])
+        } else {
+            castCollectionView.topAnchor.constraint(equalTo: overviewLabel.bottomAnchor, constant: 5).isActive = true
         }
     }
     
@@ -389,6 +323,84 @@ class DetailViewController: BaseViewController {
         gradient.endPoint = CGPoint(x: 0, y: 0.5)
         gradientView.layer.addSublayer(gradient)
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    private func createCollectionView(minimumLineSpacing: CGFloat, cell: BaseCollectionViewCell, allowSelection: Bool) -> UICollectionView {
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .horizontal
+        layout.minimumLineSpacing = minimumLineSpacing
+        let collectionView = UICollectionView(
+            frame: CGRect.zero,
+            collectionViewLayout: layout
+        )
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.register(type(of: cell), forCellWithReuseIdentifier: cell.reuseId)
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        collectionView.allowsSelection = false
+        collectionView.isPagingEnabled = true
+        collectionView.backgroundColor = view.backgroundColor
+        collectionView.contentInsetAdjustmentBehavior = .never
+        return collectionView
+    }
+    
+    private func createLabel(font: UIFont, alignment: NSTextAlignment, color: UIColor, withSublayer: Bool, withTitle: String?) -> UILabel {
+        let label = UILabel()
+        if withSublayer {
+            label.backgroundColor = .systemGray.withAlphaComponent(0.3)
+            label.layer.masksToBounds = true
+            label.layer.cornerRadius = 15
+        }
+        if let title = withTitle {
+            let titleLabel = createLabel(
+                font: .systemFont(ofSize: 10),
+                alignment: .left,
+                color: .white,
+                withSublayer: false,
+                withTitle: nil
+            )
+            titleLabel.translatesAutoresizingMaskIntoConstraints = false
+            label.addSubview(titleLabel)
+            titleLabel.text = title
+            NSLayoutConstraint.activate([
+                titleLabel.topAnchor.constraint(equalTo: label.topAnchor),
+                titleLabel.leadingAnchor.constraint(equalTo: label.leadingAnchor, constant: 10),
+                titleLabel.trailingAnchor.constraint(equalTo: label.trailingAnchor),
+                titleLabel.heightAnchor.constraint(equalToConstant: 10)
+            ])
+            updateViewConstraints()
+        }
+        label.font = font
+        label.adjustsFontSizeToFitWidth = true
+        label.textAlignment = alignment
+        label.textColor = color
+        label.numberOfLines = 0
+        return label
+    }
+    
+    private func createButton(with title: String) -> UIButton {
+        let button = UIButton()
+        button.backgroundColor = .systemRed
+        button.setTitle(title, for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.layer.cornerRadius = 20
+        button.layer.shadowColor = UIColor.black.cgColor
+        button.layer.shadowOffset = CGSize(width: 0.5, height: 3)
+        button.layer.shadowOpacity = 0.8
+        return button
+    }
+    
+    
+    
+    
 }
 
 extension DetailViewController: UICollectionViewDataSource {
@@ -402,7 +414,7 @@ extension DetailViewController: UICollectionViewDataSource {
         case episodeCollectionView:
             return presenter.episodes.count
         default:
-            return 0
+            return presenter.cast.count
         }
     }
 
@@ -418,7 +430,7 @@ extension DetailViewController: UICollectionViewDataSource {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: EpisodeCell().reuseId, for: indexPath) as? EpisodeCell else { return UICollectionViewCell() }
             return cell
         default:
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: SeasonCell().reuseId, for: indexPath) as? SeasonCell else { return UICollectionViewCell() }
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CreditCell().reuseId, for: indexPath) as? CreditCell else { return UICollectionViewCell() }
             return cell
         }
         
@@ -441,8 +453,8 @@ extension DetailViewController {
             guard let cell = cell as? EpisodeCell else { return }
             cell.viewModel = viewModel
         default:
-            let viewModel = presenter.seasons?[indexPath.item]
-            guard let cell = cell as? SeasonCell else { return }
+            let viewModel = presenter.cast[indexPath.item]
+            guard let cell = cell as? CreditCell else { return }
             cell.viewModel = viewModel
         }
     }
@@ -451,8 +463,10 @@ extension DetailViewController {
             presenter.didTapSectionCell(at: indexPath)
         }
     }
-    
-    
+
+    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        imagesCollectionView.visibleCells.first
+    }
 }
 
 extension DetailViewController: UICollectionViewDelegateFlowLayout {
@@ -465,27 +479,31 @@ extension DetailViewController: UICollectionViewDelegateFlowLayout {
             )
         case seasonsCollectionView:
             return CGSize(width: 100, height: 30)
-        default:
+        case episodeCollectionView:
             return CGSize(width: 100, height: 100)
+        default:
+            return CGSize(width: 100, height: 200)
         }
     }
 }
 
 extension DetailViewController: DetailViewControllerInputProtocol {
     func reloadData() {
+
         overviewLabel.text = presenter.overview
         taglineLabel.text = presenter.tagline
         descriptionLabel.text = presenter.description
         setBudgetLabel()
-        setSeasonsCollectionView()
         setTitle()
         setVoteLabel()
+        setSeasonsCollectionView()
         imagesCollectionView.reloadData()
-        
+        castCollectionView.reloadData()
     }
     
     func reloadEpisodes() {
         episodeCollectionView.reloadData()
+        print("+_+_+_+")
         episodeCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .left, animated: true)
     }
 }

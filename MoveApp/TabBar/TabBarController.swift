@@ -68,6 +68,10 @@ class TabBarController: UITabBarController {
         view.bringSubviewToFront(customTabBar)
 
     }
+    
+    func showTabBar() {
+        
+    }
         
     func setTabBarHidden(_ isHidden: Bool?, animated: Bool) {
         guard let isHidden = isHidden else { return }
