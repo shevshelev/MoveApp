@@ -25,10 +25,6 @@ class BaseViewController: UIViewController, UICollectionViewDelegate {
         view.backgroundColor = backgroundColor
     }
     override func viewWillAppear(_ animated: Bool) {
-        if tabBarIsHidden {
-            tabBarIsHidden.toggle()
-            tabbar?.setTabBarHidden(tabBarIsHidden, animated: true)
-        }
         setupNavBar()
     }
     func setupNavBar() {
@@ -47,6 +43,12 @@ class BaseViewController: UIViewController, UICollectionViewDelegate {
         ]
         navigationController?.navigationBar.standardAppearance = navBarAppearance
         navigationController?.navigationBar.shadowImage = nil
+    }
+    func showTabBar() {
+        if tabBarIsHidden {
+            tabBarIsHidden = false
+            tabbar?.setTabBarHidden(tabBarIsHidden, animated: true)
+        }
     }
     
     func setupBaseCollectionView(_ collectionView: UICollectionView) {

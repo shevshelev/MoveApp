@@ -42,9 +42,6 @@ class DetailViewController: BaseViewController {
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.contentInsetAdjustmentBehavior = .never
-//        scrollView.bounces = false
-//        scrollView.zoom(to: imagesCollectionView.frame, animated: true)
-        
         scrollView.delegate = self
         return scrollView
     }()
@@ -130,13 +127,15 @@ class DetailViewController: BaseViewController {
         cell: CreditCell(),
         allowSelection: false
     )
-    
+    private var showedImage = 0
+    private var timer: Timer?
     var presenter: DetailViewControllerOutputProtocol!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        baseScrollView = scrollView
+        imagesCollectionView.isScrollEnabled = false
         view.addSubviews([
-//            imagesCollectionView,
             scrollView
         ])
         scrollView.addSubviews([
@@ -147,7 +146,6 @@ class DetailViewController: BaseViewController {
     
     override func setupNavBar() {
         super.setupNavBar()
-//        navigationController?.navigationBar.isHidden = true
         navigationController?.navigationBar.prefersLargeTitles = false
         navigationController?.navigationBar.isTranslucent = true
         let backButton = UIBarButtonItem(
@@ -178,7 +176,6 @@ class DetailViewController: BaseViewController {
             imagesCollectionView.bottomAnchor.constraint(equalTo: gradientView.centerYAnchor),
             
             gradientView.centerYAnchor.constraint(equalTo: scrollView.topAnchor, constant: view.frame.width * 0.5642),
-//            gradientView.centerYAnchor.constraint(equalTo: imagesCollectionView.bottomAnchor),
             gradientView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             gradientView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             gradientView.heightAnchor.constraint(equalToConstant: 90),
@@ -227,12 +224,29 @@ class DetailViewController: BaseViewController {
             castCollectionView.heightAnchor.constraint(equalToConstant: 200),
             castCollectionView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -100),
             
-            sublayerView.bottomAnchor.constraint(equalTo: castCollectionView.bottomAnchor, constant: -300)
+            sublayerView.bottomAnchor.constraint(equalTo: castCollectionView.bottomAnchor, constant: -100),
         ])
     }
     
     @objc private func buttonTaped() {
+        showTabBar()
         navigationController?.popViewController(animated: true)
+    }
+    @objc private func changeImage() {
+        showedImage += 1
+        if showedImage < presenter.images.count {
+            imagesCollectionView.scrollToItem(at: IndexPath(item: showedImage, section: 0), at: .left, animated: true)
+        } else {
+            imagesCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .left, animated: true)
+            showedImage = 0
+        }
+    }
+    
+    // MARK: - SetupUI
+    
+    private func setButtons() {
+        
+        favouriteButton.addTarget(self, action: #selector(changeImage), for: .touchUpInside)
     }
     
     private func setVoteLabel() {
@@ -266,7 +280,6 @@ class DetailViewController: BaseViewController {
     
     private func setSeasonsCollectionView() {
         if let seasons = presenter.seasons, !seasons.isEmpty {
-            print("-----------")
             scrollView.addSubviews([seasonsCollectionView, episodeCollectionView])
             seasonsCollectionView.delegate?.collectionView?(seasonsCollectionView, didSelectItemAt: IndexPath(item: 0, section: 0))
             NSLayoutConstraint.activate([
@@ -279,11 +292,9 @@ class DetailViewController: BaseViewController {
                 episodeCollectionView.leadingAnchor.constraint(equalTo: seasonsCollectionView.leadingAnchor),
                 episodeCollectionView.trailingAnchor.constraint(equalTo: seasonsCollectionView.trailingAnchor),
                 episodeCollectionView.heightAnchor.constraint(equalToConstant: 100),
-                castCollectionView.topAnchor.constraint(equalTo: episodeCollectionView.bottomAnchor, constant: 20)
+                
+                castCollectionView.topAnchor.constraint(equalTo: episodeCollectionView.bottomAnchor, constant: 5)
             ])
-        } else {
-            print("++++++++++")
-//            castCollectionView.topAnchor.constraint(equalTo: overviewLabel.bottomAnchor, constant: 5).isActive = true
         }
     }
     
@@ -292,7 +303,8 @@ class DetailViewController: BaseViewController {
             scrollView.addSubviews([budgetView, revenueView])
             budgetView.text = presenter.budget
             revenueView.text = presenter.revenue
-
+            revenueView.textColor = presenter.budget! < presenter.revenue! ? .systemGreen : .systemRed
+            
             NSLayoutConstraint.activate([
                 budgetView.topAnchor.constraint(equalTo: overviewLabel.bottomAnchor, constant: 5),
                 budgetView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
@@ -304,10 +316,8 @@ class DetailViewController: BaseViewController {
                 revenueView.widthAnchor.constraint(equalTo: budgetView.widthAnchor),
                 revenueView.heightAnchor.constraint(equalTo: budgetView.heightAnchor),
                 
-                castCollectionView.topAnchor.constraint(equalTo: budgetView.bottomAnchor, constant: 5)
+                castCollectionView.topAnchor.constraint(equalTo: budgetView.bottomAnchor, constant: 5),
             ])
-        } else {
-            castCollectionView.topAnchor.constraint(equalTo: overviewLabel.bottomAnchor, constant: 5).isActive = true
         }
     }
     
@@ -324,14 +334,7 @@ class DetailViewController: BaseViewController {
         gradientView.layer.addSublayer(gradient)
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
+    // MARK: - CreateUIElements
     
     private func createCollectionView(minimumLineSpacing: CGFloat, cell: BaseCollectionViewCell, allowSelection: Bool) -> UICollectionView {
         let layout = UICollectionViewFlowLayout()
@@ -347,6 +350,7 @@ class DetailViewController: BaseViewController {
         collectionView.delegate = self
         collectionView.allowsSelection = false
         collectionView.isPagingEnabled = true
+        collectionView.showsHorizontalScrollIndicator = false
         collectionView.backgroundColor = view.backgroundColor
         collectionView.contentInsetAdjustmentBehavior = .never
         return collectionView
@@ -403,6 +407,8 @@ class DetailViewController: BaseViewController {
     
 }
 
+// MARK: - UICollectionViewDataSource
+
 extension DetailViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -437,6 +443,8 @@ extension DetailViewController: UICollectionViewDataSource {
     }
 }
 
+// MARK: - UICollectionViewDelegate
+
 extension DetailViewController {
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
         switch collectionView {
@@ -463,11 +471,19 @@ extension DetailViewController {
             presenter.didTapSectionCell(at: indexPath)
         }
     }
+}
 
-    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        imagesCollectionView.visibleCells.first
+// MARK: - UIScrollViewDelegate
+
+extension DetailViewController {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if scrollView.contentOffset.y > 0 { return }
+        let scale = 1.0 + (abs(scrollView.contentOffset.y) / 100)
+        imagesCollectionView.transform = CGAffineTransform(scaleX: scale, y: scale)
     }
 }
+
+// MARK: - UICollectionViewDelegateFlowLayout
 
 extension DetailViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -487,9 +503,10 @@ extension DetailViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
+// MARK: - DetailViewControllerInputProtocol
+
 extension DetailViewController: DetailViewControllerInputProtocol {
     func reloadData() {
-
         overviewLabel.text = presenter.overview
         taglineLabel.text = presenter.tagline
         descriptionLabel.text = presenter.description
@@ -499,11 +516,12 @@ extension DetailViewController: DetailViewControllerInputProtocol {
         setSeasonsCollectionView()
         imagesCollectionView.reloadData()
         castCollectionView.reloadData()
+        setButtons()
+        timer = Timer.scheduledTimer(timeInterval: 3, target: self, selector: #selector(changeImage), userInfo: nil, repeats: true)
     }
     
     func reloadEpisodes() {
         episodeCollectionView.reloadData()
-        print("+_+_+_+")
         episodeCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .left, animated: true)
     }
 }
