@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 protocol RouterInputProtocol {
     static func showDetail(from view: MainViewControllerInputProtocol, for type: MovieType, and id: Int?)

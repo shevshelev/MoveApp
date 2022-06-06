@@ -27,11 +27,13 @@ class BaseViewController: UIViewController, UICollectionViewDelegate {
     override func viewWillAppear(_ animated: Bool) {
         setupNavBar()
     }
+    
     func setupNavBar() {
         navigationController?.navigationBar.prefersLargeTitles = true
         let navBarAppearance = UINavigationBarAppearance()
         navBarAppearance.configureWithOpaqueBackground()
         navBarAppearance.backgroundColor = backgroundColor
+        navBarAppearance.shadowColor = .clear
         navBarAppearance.backButtonAppearance = UIBarButtonItemAppearance()
         navBarAppearance.titleTextAttributes = [
             .foregroundColor: UIColor.white,
@@ -42,8 +44,8 @@ class BaseViewController: UIViewController, UICollectionViewDelegate {
             .font: UIFont.boldSystemFont(ofSize: 60)
         ]
         navigationController?.navigationBar.standardAppearance = navBarAppearance
-        navigationController?.navigationBar.shadowImage = nil
     }
+    
     func showTabBar() {
         if tabBarIsHidden {
             tabBarIsHidden = false
@@ -85,9 +87,10 @@ class BaseViewController: UIViewController, UICollectionViewDelegate {
         }
     }
     
-
-    
-    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        showTabBar()
+    }
 }
 
 // MARK: - UIScrollViewDelegate

@@ -9,6 +9,9 @@ import Foundation
 
 protocol NetworkManagerProtocol {
     func fetchMovie(for type: NetworkRequestType) async throws -> Any
+    func setFavouriteStatus(for type: MovieType, _ id: Int, with status: Bool)
+    func setRate(for type: MovieType, _ id: Int, rate: Double)
+    func deleteRate(for type: MovieType, _ id: Int)
     
 }
 
@@ -93,6 +96,77 @@ class NetworkManager: NetworkManagerProtocol {
             return try await decodeJSON(from: data, in: Season.self)
         }
     }
+    
+    
+    
+    
+    func setFavouriteStatus(for type: MovieType, _ id: Int, with status: Bool) {
+        guard let url = URL(string: "https://api.themoviedb.org/3/account/12385898/favorite?api_key=7764ef393c7ca0012a42f23871539e91&session_id=aac8525364566796e72c6c5e7d5021d18c88336e") else { return }
+        var request = URLRequest(url: url)
+        let body: [String: AnyHashable] = [
+            "media_type" : type.rawValue,
+            "media_id" : id,
+            "favorite" : status
+        ]
+        request.httpMethod = "POST"
+        request.setValue("application/json;charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: .fragmentsAllowed)
+        
+        let task = URLSession.shared.dataTask(with: request) { data, _, error in
+            guard let data = data, error == nil else { return }
+            do {
+                let response = try JSONSerialization.jsonObject(with: data, options: .fragmentsAllowed)
+                print(response)
+            } catch {
+                print(error)
+            }
+        }
+        task.resume()
+    }
+    
+    func setRate(for type: MovieType, _ id: Int, rate: Double) {
+        guard let url = URL(string: "https://api.themoviedb.org/3/\(type.rawValue)/\(id)/rating?api_key=7764ef393c7ca0012a42f23871539e91&session_id=aac8525364566796e72c6c5e7d5021d18c88336e") else { return }
+        var request = URLRequest(url: url)
+        let body: [String: AnyHashable] = [
+            "value" : rate
+        ]
+        request.httpMethod = "POST"
+        request.setValue("application/json;charset=utf-8", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: .fragmentsAllowed)
+        
+        let task = URLSession.shared.dataTask(with: request) { data, _, error in
+            guard let data = data, error == nil else { return }
+            do {
+                let response = try JSONSerialization.jsonObject(with: data, options: .fragmentsAllowed)
+                print(response)
+            } catch {
+                print(error)
+            }
+        }
+        task.resume()
+    }
+    
+    func deleteRate(for type: MovieType, _ id: Int) {
+        guard let url = URL(string: "https://api.themoviedb.org/3/\(type.rawValue)/\(id)/rating?api_key=7764ef393c7ca0012a42f23871539e91&session_id=aac8525364566796e72c6c5e7d5021d18c88336e") else { return }
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("application/json;charset=utf-8", forHTTPHeaderField: "Content-Type")
+        let task = URLSession.shared.dataTask(with: request) { data, _, error in
+            guard let data = data, error == nil else { return }
+            do {
+                let response = try JSONSerialization.jsonObject(with: data, options: .fragmentsAllowed)
+                print(response)
+            } catch {
+                print(error)
+            }
+        }
+        task.resume()
+    }
+    
+    
+    
+    
+    
     
     private func loadData(from url: URL) async throws -> Data {
         let (data, response) = try await URLSession.shared.data(from: url)

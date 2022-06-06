@@ -169,7 +169,6 @@ extension MainViewController {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         presenter.didTapCell(at: indexPath)
-        showTabBar()
     }
 }
 

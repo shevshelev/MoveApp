@@ -10,6 +10,8 @@ import Foundation
 struct DetailPresenterDataStore {
     let film: FilmModelProtocol?
     let show: TvModelProtocol?
+    let isFavorite: Bool
+    let myRate: Double
     var movieType: MovieType {
         if film != nil {
             return .film
@@ -33,19 +35,21 @@ class DetailPresenter: DetailViewControllerOutputProtocol {
             return dataStore.show
         }
     }
-    var id: Int? {
-        movie?.id
+    var id: Int {
+        movie?.id ?? 0
+    }
+    private var isRated: Double {
+        guard let rate = dataStore?.myRate else { return 0.0 }
+        return rate
     }
     
     var titleLogo: String? {
         guard let logos = movie?.images?.logos, !logos.isEmpty else { print("no logo"); return nil }
-        guard let currentLanguage = Locale.preferredLanguages.first?.prefix(2) else {print("hernya"); return nil }
+        guard let currentLanguage = Locale.preferredLanguages.first?.prefix(2) else { return nil }
         let currentLanguageLogos = logos.filter {$0.iso6391 ?? "" == currentLanguage }
         if !currentLanguageLogos.isEmpty {
-            print("Current language logos \(currentLanguageLogos.count)")
             return currentLanguageLogos.first?.filePath
         } else {
-            print("Logos \(logos.count)")
             return logos.first?.filePath
         }
     }
@@ -100,13 +104,13 @@ class DetailPresenter: DetailViewControllerOutputProtocol {
         movie?.credits?.crew?.forEach { crew.append(String($0.id ?? 0)) }
         return crew
     }
-    var budget: String? {
+    var budget: Int? {
         guard let budget = dataStore?.film?.budget else { return nil }
-        return "\(budget)$"
+        return budget
     }
-    var revenue: String? {
+    var revenue: Int? {
         guard let revenue = dataStore?.film?.revenue else { return nil }
-        return "\(revenue)$"
+        return revenue
     }
     var status: String? {
         guard let status = dataStore?.show?.status else { return nil }
@@ -133,15 +137,22 @@ class DetailPresenter: DetailViewControllerOutputProtocol {
     }
     
     func didTapFavouriteButton() {
-        
+        interactor.toggleFavoriteStatus()
     }
-    func didTapSectionCell(at indexPath: IndexPath) {
+    func setRate(with rate: Double) {
+        interactor.setRate(with: rate)
+    }
+    func didTapSeasonCell(at indexPath: IndexPath) {
         let season = seasons?[indexPath.item]
-        interactor.fetchEpisodes(at: id ?? 0, in: season?.seasonNumber ?? 0)
+        interactor.fetchEpisodes(at: id, in: season?.seasonNumber ?? 0)
     }
-    
-    
-    
+    func checkRate() -> Double {
+        interactor.rate()
+    }
+    func deleteRate() {
+        interactor.deleteRate()
+        view.setRateButtonTitle(with: 0)
+    }
 }
 
 extension DetailPresenter: DetailInteractorOutputProtocol {
@@ -149,6 +160,8 @@ extension DetailPresenter: DetailInteractorOutputProtocol {
         self.dataStore = dataStore
         DispatchQueue.main.async {
             self.view.reloadData()
+            self.view.setFavouriteButtonTitle(with: dataStore.isFavorite)
+            self.view.setRateButtonTitle(with: dataStore.myRate)
         }
     }
     func episodesDidReceive(with episode: [Episode]) {
@@ -157,5 +170,11 @@ extension DetailPresenter: DetailInteractorOutputProtocol {
         DispatchQueue.main.async {
             self.view.reloadEpisodes()
         }
+    }
+    func receiveFavouriteStatus(with status: Bool) {
+        view.setFavouriteButtonTitle(with: status)
+    }
+    func receiveRate(with rate: Double) {
+        view.setRateButtonTitle(with: rate)
     }
 }

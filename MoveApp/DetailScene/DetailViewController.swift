@@ -10,6 +10,8 @@ import UIKit
 protocol DetailViewControllerInputProtocol: AnyObject {
     func reloadData()
     func reloadEpisodes()
+    func setFavouriteButtonTitle(with status: Bool)
+    func setRateButtonTitle(with rate: Double)
 }
 
 protocol DetailViewControllerOutputProtocol {
@@ -22,14 +24,17 @@ protocol DetailViewControllerOutputProtocol {
     var overview: String? { get }
     var seasons: [SeasonCellViewModelProtocol]? { get }
     var episodes: [EpisodeCellViewModelProtocol] { get }
-    var budget: String? { get }
-    var revenue: String? { get }
+    var budget: Int? { get }
+    var revenue: Int? { get }
     var images: [ImageCellViewModelProtocol] { get }
     var cast: [CreditCellViewModelProtocol] { get }
     init(view: DetailViewControllerInputProtocol)
     func viewDidLoad()
     func didTapFavouriteButton()
-    func didTapSectionCell(at indexPath: IndexPath)
+    func setRate(with rate: Double)
+    func didTapSeasonCell(at indexPath: IndexPath)
+    func deleteRate()
+    func checkRate() -> Double
 }
 
 class DetailViewController: BaseViewController {
@@ -88,8 +93,8 @@ class DetailViewController: BaseViewController {
         withSublayer: false,
         withTitle: nil
     )
-    private lazy var rateButton = createButton(with: "Оценить!")
-    private lazy var favouriteButton = createButton(with: "В избранное!")
+    private lazy var rateButton = createButton()
+    private lazy var favouriteButton = createButton()
     private lazy var overviewLabel = createLabel(
         font: .systemFont(ofSize: 17),
         alignment: .left,
@@ -129,50 +134,39 @@ class DetailViewController: BaseViewController {
     )
     private var showedImage = 0
     private var timer: Timer?
+    weak var alertAction: UIAlertAction?
     var presenter: DetailViewControllerOutputProtocol!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         baseScrollView = scrollView
         imagesCollectionView.isScrollEnabled = false
-        view.addSubviews([
-            scrollView
-        ])
+        view.addSubviews([scrollView])
         scrollView.addSubviews([
-            imagesCollectionView,
-            gradientView, sublayerView, originalLabel, taglineLabel, voteLabel, descriptionLabel, rateButton, favouriteButton, overviewLabel, castCollectionView])
+            imagesCollectionView,gradientView, sublayerView, originalLabel,
+            taglineLabel, voteLabel, descriptionLabel, rateButton,
+            favouriteButton, overviewLabel, castCollectionView
+        ])
         presenter.viewDidLoad()
     }
-    
     override func setupNavBar() {
-        super.setupNavBar()
-        navigationController?.navigationBar.prefersLargeTitles = false
-        navigationController?.navigationBar.isTranslucent = true
-        let backButton = UIBarButtonItem(
-            image: UIImage(systemName: "chevron.backward"),
-            landscapeImagePhone: UIImage(systemName: "chevron.backward"),
-            style: .done,
-            target: self,
-            action: #selector(buttonTaped)
-        )
-        backButton.tintColor = .white
-        navigationItem.leftBarButtonItem = backButton
+        let navBarAppearance = UINavigationBarAppearance()
+        navBarAppearance.configureWithOpaqueBackground()
+        navBarAppearance.backgroundColor = .clear
+        navBarAppearance.shadowColor = .clear
+        navigationController?.navigationBar.standardAppearance = navBarAppearance
     }
-    
     override func viewWillLayoutSubviews() {
         
         NSLayoutConstraint.activate([
-            
-            imagesCollectionView.topAnchor.constraint(equalTo: view.topAnchor),
-
-            imagesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            imagesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.heightAnchor.constraint(equalTo: view.heightAnchor),
             
+            imagesCollectionView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            imagesCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            imagesCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             imagesCollectionView.bottomAnchor.constraint(equalTo: gradientView.centerYAnchor),
             
             gradientView.centerYAnchor.constraint(equalTo: scrollView.topAnchor, constant: view.frame.width * 0.5642),
@@ -224,20 +218,25 @@ class DetailViewController: BaseViewController {
             castCollectionView.heightAnchor.constraint(equalToConstant: 200),
             castCollectionView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor, constant: -100),
             
-            sublayerView.bottomAnchor.constraint(equalTo: castCollectionView.bottomAnchor, constant: -100),
+            sublayerView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
         ])
     }
     
-    @objc private func buttonTaped() {
-        showTabBar()
-        navigationController?.popViewController(animated: true)
+    @objc private func didTabFavouriteButton() {
+        tapButtonAnimate(for: favouriteButton)
+        presenter.didTapFavouriteButton()
     }
+    @objc private func didTapRateButton() {
+        tapButtonAnimate(for: rateButton)
+        showAlert()
+    }
+    
     @objc private func changeImage() {
         showedImage += 1
         if showedImage < presenter.images.count {
             imagesCollectionView.scrollToItem(at: IndexPath(item: showedImage, section: 0), at: .left, animated: true)
         } else {
-            imagesCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .left, animated: true)
+            imagesCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .left, animated: false)
             showedImage = 0
         }
     }
@@ -245,16 +244,14 @@ class DetailViewController: BaseViewController {
     // MARK: - SetupUI
     
     private func setButtons() {
-        
-        favouriteButton.addTarget(self, action: #selector(changeImage), for: .touchUpInside)
+        rateButton.addTarget(self, action: #selector(didTapRateButton), for: .touchUpInside)
+        favouriteButton.addTarget(self, action: #selector(didTabFavouriteButton), for: .touchUpInside)
     }
-    
     private func setVoteLabel() {
         guard let vote = presenter.voteAverage else { return }
         voteLabel.textColor = vote < 3.0 ? .systemRed : vote < 7.0 ? .systemGray : .systemGreen
         voteLabel.text = String(format: "%.2f", vote)
     }
-    
     private func setTitle() {
         scrollView.zoom(to: imagesCollectionView.frame, animated: true)
         addVerticalGradientLayer()
@@ -277,7 +274,6 @@ class DetailViewController: BaseViewController {
             titleLabel.text = presenter.title
         }
     }
-    
     private func setSeasonsCollectionView() {
         if let seasons = presenter.seasons, !seasons.isEmpty {
             scrollView.addSubviews([seasonsCollectionView, episodeCollectionView])
@@ -288,7 +284,7 @@ class DetailViewController: BaseViewController {
                 seasonsCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
                 seasonsCollectionView.heightAnchor.constraint(equalToConstant: 30),
                 
-                episodeCollectionView.topAnchor.constraint(equalTo: seasonsCollectionView.bottomAnchor),
+                episodeCollectionView.topAnchor.constraint(equalTo: seasonsCollectionView.bottomAnchor, constant: 5),
                 episodeCollectionView.leadingAnchor.constraint(equalTo: seasonsCollectionView.leadingAnchor),
                 episodeCollectionView.trailingAnchor.constraint(equalTo: seasonsCollectionView.trailingAnchor),
                 episodeCollectionView.heightAnchor.constraint(equalToConstant: 100),
@@ -297,12 +293,11 @@ class DetailViewController: BaseViewController {
             ])
         }
     }
-    
     private func setBudgetLabel() {
         if presenter.budget != nil, presenter.revenue != nil {
             scrollView.addSubviews([budgetView, revenueView])
-            budgetView.text = presenter.budget
-            revenueView.text = presenter.revenue
+            budgetView.text = "\(presenter.budget ?? 0)$"
+            revenueView.text = "\(presenter.revenue ?? 0)$"
             revenueView.textColor = presenter.budget! < presenter.revenue! ? .systemGreen : .systemRed
             
             NSLayoutConstraint.activate([
@@ -320,7 +315,6 @@ class DetailViewController: BaseViewController {
             ])
         }
     }
-    
     private func addVerticalGradientLayer() {
         let gradient = CAGradientLayer()
         gradient.frame = gradientView.bounds
@@ -348,14 +342,13 @@ class DetailViewController: BaseViewController {
         collectionView.register(type(of: cell), forCellWithReuseIdentifier: cell.reuseId)
         collectionView.dataSource = self
         collectionView.delegate = self
-        collectionView.allowsSelection = false
+        collectionView.allowsSelection = allowSelection
         collectionView.isPagingEnabled = true
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.backgroundColor = view.backgroundColor
         collectionView.contentInsetAdjustmentBehavior = .never
         return collectionView
     }
-    
     private func createLabel(font: UIFont, alignment: NSTextAlignment, color: UIColor, withSublayer: Bool, withTitle: String?) -> UILabel {
         let label = UILabel()
         if withSublayer {
@@ -389,22 +382,23 @@ class DetailViewController: BaseViewController {
         label.numberOfLines = 0
         return label
     }
-    
-    private func createButton(with title: String) -> UIButton {
+    private func createButton() -> UIButton {
         let button = UIButton()
         button.backgroundColor = .systemRed
-        button.setTitle(title, for: .normal)
-        button.setTitleColor(.white, for: .normal)
+//        button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 20
         button.layer.shadowColor = UIColor.black.cgColor
         button.layer.shadowOffset = CGSize(width: 0.5, height: 3)
         button.layer.shadowOpacity = 0.8
         return button
     }
-    
-    
-    
-    
+    private func tapButtonAnimate(for button: UIButton) {
+        let animation = CABasicAnimation(keyPath: "shadowOffset")
+        animation.toValue = CGSize(width: 0, height: 0.5)
+        animation.duration = 0.1
+        animation.autoreverses = true
+        button.layer.add(animation, forKey: "shadowOffset")
+    }
 }
 
 // MARK: - UICollectionViewDataSource
@@ -423,7 +417,6 @@ extension DetailViewController: UICollectionViewDataSource {
             return presenter.cast.count
         }
     }
-
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         switch collectionView {
         case imagesCollectionView:
@@ -439,7 +432,6 @@ extension DetailViewController: UICollectionViewDataSource {
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: CreditCell().reuseId, for: indexPath) as? CreditCell else { return UICollectionViewCell() }
             return cell
         }
-        
     }
 }
 
@@ -468,7 +460,7 @@ extension DetailViewController {
     }
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == seasonsCollectionView {
-            presenter.didTapSectionCell(at: indexPath)
+            presenter.didTapSeasonCell(at: indexPath)
         }
     }
 }
@@ -519,9 +511,58 @@ extension DetailViewController: DetailViewControllerInputProtocol {
         setButtons()
         timer = Timer.scheduledTimer(timeInterval: 3, target: self, selector: #selector(changeImage), userInfo: nil, repeats: true)
     }
-    
     func reloadEpisodes() {
         episodeCollectionView.reloadData()
         episodeCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .left, animated: true)
+    }
+    func setFavouriteButtonTitle(with status: Bool) {
+        favouriteButton.setTitle(status ? "In Favourites!" : "Add to Favourites", for: .normal)
+    }
+    func setRateButtonTitle(with rate: Double) {
+        let titleWithRate = "Your rate: " + String(format: "%.1f", rate)
+        rateButton.setTitle(rate > 0 ? titleWithRate : "Rate!", for: .normal)
+    }
+}
+// MARK: - UIAlertController
+
+extension DetailViewController {
+    
+    private func showAlert() {
+        let rate = presenter.checkRate()
+        let alert = UIAlertController(
+            title: rate != 0 ? "Your rate:  \(rate)" : "Set rate!",
+            message: "Please rate the film from 0.5 to 10 in steps of 0.5.",
+            preferredStyle: .alert
+        )
+        let setAction = UIAlertAction(title: "Rate!", style: .default) { action in
+            guard let textField = alert.textFields?[0] else { return }
+            if let rate = Double(textField.text ?? "") {
+                self.presenter.setRate(with: rate)
+            }
+        }
+        let delAction = UIAlertAction(title: "Delete", style: .destructive) { _ in
+            self.presenter.deleteRate()
+        }
+        let cancel = UIAlertAction(title: "Cancel", style: .destructive)
+        alert.addTextField { textField in
+            textField.placeholder = "Your rate!"
+            textField.keyboardType = .decimalPad
+            textField.text = rate != 0 ? String(format: "%.1f", rate) : nil
+            textField.addTarget(self, action: #selector(self.textChanged(_:)), for: .editingChanged)
+        }
+        setAction.isEnabled = false
+        alert.addAction(setAction)
+        alert.addAction(rate != 0 ? delAction : cancel)
+        self.alertAction = setAction
+        self.present(alert, animated: true)
+    }
+    @objc private func textChanged(_ sender: UITextField) {
+        let range = 0.5...10
+        if let rate = Double(sender.text ?? ""), Int(rate * 10) % 5 == 0, range.contains(rate) {
+            alertAction?.isEnabled = true
+        } else {
+            alertAction?.isEnabled = false
+        }
+        
     }
 }
