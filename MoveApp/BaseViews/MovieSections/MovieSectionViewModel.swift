@@ -18,6 +18,8 @@ enum MovieSectionType: String {
     case latest = "Latest"
     case upcoming = "Upcoming"
     case airingToday = "Airing today"
+    case favouritesFilms = "Favourites Films"
+    case favouritesTV = "Favourites TV Shows"
 }
 
 struct MovieSectionViewModel: MovieSectionViewModelProtocol, Hashable {

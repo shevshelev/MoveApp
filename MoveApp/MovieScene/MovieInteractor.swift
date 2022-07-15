@@ -19,11 +19,11 @@ final class MovieInteractor: MainInteractorInputProtocol {
     
     func fetchObjects() {
         Task {
-            guard let nowPlaying = try? await networkManager.fetchMovie(for:.movieList(type: .nowPlaying)) as? MovieResponse<Film> else { return }
-            guard let topRated = try? await networkManager.fetchMovie(for: .movieList(type: .topRated)) as? MovieResponse<Film> else { return }
-            guard let popular = try? await networkManager.fetchMovie(for: .movieList(type: .popular)) as? MovieResponse<Film> else { return }
-            guard let upcoming = try? await networkManager.fetchMovie(for: .movieList(type: .upcoming)) as? MovieResponse<Film> else { return }
-            guard let latest = try? await networkManager.fetchMovie(for: .latestMovie) as? Film else { return }
+            guard let nowPlaying = try? await networkManager.sendRequest(for:.movieList(type: .nowPlaying)) as? MovieResponse<Film> else { return }
+            guard let topRated = try? await networkManager.sendRequest(for: .movieList(type: .topRated)) as? MovieResponse<Film> else { return }
+            guard let popular = try? await networkManager.sendRequest(for: .movieList(type: .popular)) as? MovieResponse<Film> else { return }
+            guard let upcoming = try? await networkManager.sendRequest(for: .movieList(type: .upcoming)) as? MovieResponse<Film> else { return }
+            guard let latest = try? await networkManager.sendRequest(for: .latestMovie) as? Film else { return }
             
             let dataStore = MainPresenterDataStore(
                 type: .film,

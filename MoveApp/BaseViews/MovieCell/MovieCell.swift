@@ -7,11 +7,7 @@
 
 import UIKit
 
-class MovieCell: UICollectionViewCell {
-    
-    var reuseId: String {
-        "MovieCell"
-    }
+class MovieCell: BaseCollectionViewCell {
     
     var viewModel: MovieCellViewModelProtocol! {
         didSet {

@@ -87,6 +87,14 @@ class BaseViewController: UIViewController, UICollectionViewDelegate {
         }
     }
     
+    func tapAnimate(for view: UIView) {
+        let animation = CABasicAnimation(keyPath: "shadowOffset")
+        animation.toValue = CGSize(width: 0, height: 0.5)
+        animation.duration = 0.2
+        animation.autoreverses = true
+        view.layer.add(animation, forKey: "shadowOffset")
+    }
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         showTabBar()

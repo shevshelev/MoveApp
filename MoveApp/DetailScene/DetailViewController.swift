@@ -223,22 +223,22 @@ class DetailViewController: BaseViewController {
     }
     
     @objc private func didTabFavouriteButton() {
-        tapButtonAnimate(for: favouriteButton)
+        tapAnimate(for: favouriteButton)
         presenter.didTapFavouriteButton()
     }
     @objc private func didTapRateButton() {
-        tapButtonAnimate(for: rateButton)
+        tapAnimate(for: rateButton)
         showAlert()
     }
     
     @objc private func changeImage() {
-        showedImage += 1
-        if showedImage < presenter.images.count {
-            imagesCollectionView.scrollToItem(at: IndexPath(item: showedImage, section: 0), at: .left, animated: true)
-        } else {
-            imagesCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .left, animated: false)
-            showedImage = 0
-        }
+            showedImage += 1
+            if showedImage < presenter.images.count {
+                imagesCollectionView.scrollToItem(at: IndexPath(item: showedImage, section: 0), at: .left, animated: true)
+            } else {
+                imagesCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .left, animated: false)
+                showedImage = 0
+            }
     }
     
     // MARK: - SetupUI
@@ -261,7 +261,7 @@ class DetailViewController: BaseViewController {
             gradientView.addSubview(titleImage)
             titleImage.setConstraintsToSuperView(top: 10, left: 6, right: -6, bottom: -10)
             titleImage.fetchImage(with: logoEndpoint)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 if self.titleImage.image == nil {
                     self.gradientView.addSubview(self.titleLabel)
                     self.titleLabel.setConstraintsToSuperView()
@@ -385,19 +385,11 @@ class DetailViewController: BaseViewController {
     private func createButton() -> UIButton {
         let button = UIButton()
         button.backgroundColor = .systemRed
-//        button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 20
         button.layer.shadowColor = UIColor.black.cgColor
         button.layer.shadowOffset = CGSize(width: 0.5, height: 3)
         button.layer.shadowOpacity = 0.8
         return button
-    }
-    private func tapButtonAnimate(for button: UIButton) {
-        let animation = CABasicAnimation(keyPath: "shadowOffset")
-        animation.toValue = CGSize(width: 0, height: 0.5)
-        animation.duration = 0.1
-        animation.autoreverses = true
-        button.layer.add(animation, forKey: "shadowOffset")
     }
 }
 
@@ -520,7 +512,7 @@ extension DetailViewController: DetailViewControllerInputProtocol {
     }
     func setRateButtonTitle(with rate: Double) {
         let titleWithRate = "Your rate: " + String(format: "%.1f", rate)
-        rateButton.setTitle(rate > 0 ? titleWithRate : "Rate!", for: .normal)
+            self.rateButton.setTitle(rate > 0 ? titleWithRate : "Rate!", for: .normal)
     }
 }
 // MARK: - UIAlertController

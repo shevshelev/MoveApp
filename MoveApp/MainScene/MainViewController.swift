@@ -168,7 +168,19 @@ extension MainViewController {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        presenter.didTapCell(at: indexPath)
+        guard let cell = collectionView.cellForItem(at: indexPath) else { return }
+        tapAnimate(for: cell)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            self.presenter.didTapCell(at: indexPath)
+        }
+    }
+    
+    private func tapButtonAnimate(for view: UIView) {
+        let animation = CABasicAnimation(keyPath: "shadowOffset")
+        animation.toValue = CGSize(width: 0, height: 0.5)
+        animation.duration = 0.1
+        animation.autoreverses = true
+        view.layer.add(animation, forKey: "shadowOffset")
     }
 }
 

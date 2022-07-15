@@ -8,8 +8,6 @@
 import Foundation
 
 protocol DetailInteractorInputProtocol {
-//    var isFavourite: Bool { get }
-//    var myRate: Double { get }
     init(id: Int?,
          movieType: MovieType,
         presenter: DetailInteractorOutputProtocol,
@@ -42,6 +40,7 @@ class DetailInteractor: DetailInteractorInputProtocol {
             dataManager.getFavouriteStatus(for: movieType, movieId ?? 0)
         } set {
             dataManager.setFavouriteStatus(for: movieType, movieId ?? 0, with: newValue)
+            presenter.receiveFavouriteStatus(with: newValue)
         }
     }
     private var myRate: Double {
@@ -49,6 +48,7 @@ class DetailInteractor: DetailInteractorInputProtocol {
             dataManager.getRate(for: movieType, movieId ?? 0)
         } set {
             dataManager.setRate(for: movieType, movieId ?? 0, with: newValue)
+            presenter.receiveRate(with: newValue)
         }
     }
     
@@ -65,23 +65,27 @@ class DetailInteractor: DetailInteractorInputProtocol {
     }
     
     func toggleFavoriteStatus() {
-        isFavourite.toggle()
-        presenter.receiveFavouriteStatus(with: isFavourite)
-        networkManager.setFavouriteStatus(for: movieType, movieId ?? 0, with: isFavourite)
-        print(isFavourite)
+        Task {
+            isFavourite.toggle()
+            let _ = try await networkManager.sendRequest(for: .setFavouriteStatus(type: movieType, id: movieId ?? 0, status: isFavourite))
+            print(isFavourite)
+        }
     }
     func setRate(with rate: Double) {
-        myRate = rate
-        presenter.receiveRate(with: rate)
-        networkManager.setRate(for: movieType, movieId ?? 0, rate: rate)
+        Task {
+            myRate = rate
+            let _ = try await networkManager.sendRequest(for: .setRate(type: movieType, id: movieId ?? 0, rate: rate))
+        }
     }
     
     func rate() -> Double {
         myRate
     }
     func deleteRate() {
-        myRate = 0
-        networkManager.deleteRate(for: movieType, movieId ?? 0)
+        Task {
+            myRate = 0
+            let _ = try await networkManager.sendRequest(for: .deleteRate(type: movieType, id: movieId ?? 0))
+        }
     }
     
     func fetchObject() {
@@ -89,7 +93,7 @@ class DetailInteractor: DetailInteractorInputProtocol {
             let dataStore: DetailPresenterDataStore
             switch movieType {
             case .film:
-                guard let movie = try await networkManager.fetchMovie(for: .single(type: movieType, id: movieId ?? 0)) as? Film else { return }
+                guard let movie = try await networkManager.sendRequest(for: .single(type: movieType, id: movieId ?? 0)) as? Film else { return }
                 dataStore = DetailPresenterDataStore(
                     film: movie,
                     show: nil,
@@ -97,7 +101,7 @@ class DetailInteractor: DetailInteractorInputProtocol {
                     myRate: myRate
                 )
             case .tv:
-                guard let movie = try await networkManager.fetchMovie(for: .single(type: movieType, id: movieId ?? 0)) as? Tv else { return }
+                guard let movie = try await networkManager.sendRequest(for: .single(type: movieType, id: movieId ?? 0)) as? Tv else { return }
                 dataStore = DetailPresenterDataStore(
                     film: nil,
                     show: movie,
@@ -110,7 +114,7 @@ class DetailInteractor: DetailInteractorInputProtocol {
     }
     func fetchEpisodes(at tvId: Int, in seasonNumber: Int) {
         Task {
-            guard let season = try await networkManager.fetchMovie(for: .tvSeason(tvId: tvId, seasonNumber: seasonNumber)) as? Season else { return }
+            guard let season = try await networkManager.sendRequest(for: .tvSeason(tvId: tvId, seasonNumber: seasonNumber)) as? Season else { return }
             guard let episode = season.episodes else { return }
             presenter.episodesDidReceive(with: episode)
         }

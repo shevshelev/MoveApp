@@ -24,6 +24,8 @@
 		B817F93D282E6EEF00957949 /* TV.swift in Sources */ = {isa = PBXBuildFile; fileRef = B817F93C282E6EEF00957949 /* TV.swift */; };
 		B817F93F282E7DB700957949 /* Movie.swift in Sources */ = {isa = PBXBuildFile; fileRef = B817F93E282E7DB700957949 /* Movie.swift */; };
 		B817F943282E8FDF00957949 /* UImageView+Additions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B817F942282E8FDF00957949 /* UImageView+Additions.swift */; };
+		B81CABE3284F574000E1632D /* FavouritesPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B81CABE2284F574000E1632D /* FavouritesPresenter.swift */; };
+		B81CABE5284F575200E1632D /* FavouritesInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B81CABE4284F575200E1632D /* FavouritesInteractor.swift */; };
 		B8727BC82834ECC700FE7B37 /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8727BC72834ECC700FE7B37 /* DetailViewController.swift */; };
 		B8727BCA2834ED1B00FE7B37 /* DetilPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8727BC92834ED1B00FE7B37 /* DetilPresenter.swift */; };
 		B8727BCC2834ED2A00FE7B37 /* DetailInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8727BCB2834ED2A00FE7B37 /* DetailInteractor.swift */; };
@@ -31,6 +33,8 @@
 		B88CC169283059780058168C /* MovieSectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B88CC168283059780058168C /* MovieSectionViewModel.swift */; };
 		B88CC16E2832336D0058168C /* TVPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B88CC16D2832336D0058168C /* TVPresenter.swift */; };
 		B88CC1702832337A0058168C /* TVInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B88CC16F2832337A0058168C /* TVInteractor.swift */; };
+		B8961171285088BB004D5709 /* FavouritesHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8961170285088BA004D5709 /* FavouritesHeaderView.swift */; };
+		B89611732850A3D0004D5709 /* FavouritesSectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B89611722850A3D0004D5709 /* FavouritesSectionViewModel.swift */; };
 		B8BD2941283B640100DE3235 /* SeasonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8BD2940283B640100DE3235 /* SeasonCell.swift */; };
 		B8BD2943283B64AF00DE3235 /* SeasonCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8BD2942283B64AF00DE3235 /* SeasonCellViewModel.swift */; };
 		B8BD2946283B987400DE3235 /* EpisodeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B8BD2945283B987400DE3235 /* EpisodeCell.swift */; };
@@ -73,6 +77,8 @@
 		B817F93C282E6EEF00957949 /* TV.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TV.swift; sourceTree = "<group>"; };
 		B817F93E282E7DB700957949 /* Movie.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Movie.swift; sourceTree = "<group>"; };
 		B817F942282E8FDF00957949 /* UImageView+Additions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UImageView+Additions.swift"; sourceTree = "<group>"; };
+		B81CABE2284F574000E1632D /* FavouritesPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesPresenter.swift; sourceTree = "<group>"; };
+		B81CABE4284F575200E1632D /* FavouritesInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesInteractor.swift; sourceTree = "<group>"; };
 		B8727BC72834ECC700FE7B37 /* DetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewController.swift; sourceTree = "<group>"; };
 		B8727BC92834ED1B00FE7B37 /* DetilPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetilPresenter.swift; sourceTree = "<group>"; };
 		B8727BCB2834ED2A00FE7B37 /* DetailInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailInteractor.swift; sourceTree = "<group>"; };
@@ -80,6 +86,8 @@
 		B88CC168283059780058168C /* MovieSectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieSectionViewModel.swift; sourceTree = "<group>"; };
 		B88CC16D2832336D0058168C /* TVPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVPresenter.swift; sourceTree = "<group>"; };
 		B88CC16F2832337A0058168C /* TVInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TVInteractor.swift; sourceTree = "<group>"; };
+		B8961170285088BA004D5709 /* FavouritesHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesHeaderView.swift; sourceTree = "<group>"; };
+		B89611722850A3D0004D5709 /* FavouritesSectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouritesSectionViewModel.swift; sourceTree = "<group>"; };
 		B8BD2940283B640100DE3235 /* SeasonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeasonCell.swift; sourceTree = "<group>"; };
 		B8BD2942283B64AF00DE3235 /* SeasonCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeasonCellViewModel.swift; sourceTree = "<group>"; };
 		B8BD2945283B987400DE3235 /* EpisodeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodeCell.swift; sourceTree = "<group>"; };
@@ -165,6 +173,22 @@
 				B8C80A8B282F9AD6001F0591 /* MovieCellViewModel.swift */,
 			);
 			path = MovieCell;
+			sourceTree = "<group>";
+		};
+		B81CABE6285087A900E1632D /* FavouritesSections */ = {
+			isa = PBXGroup;
+			children = (
+				B8961170285088BA004D5709 /* FavouritesHeaderView.swift */,
+				B89611722850A3D0004D5709 /* FavouritesSectionViewModel.swift */,
+			);
+			path = FavouritesSections;
+			sourceTree = "<group>";
+		};
+		B84C7D57288149E300D5279E /* FavouritesCell */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = FavouritesCell;
 			sourceTree = "<group>";
 		};
 		B8727BC62834ECA600FE7B37 /* DetailScene */ = {
@@ -260,7 +284,11 @@
 		B8DF805D2838D7580094011F /* FavouritesScene */ = {
 			isa = PBXGroup;
 			children = (
+				B84C7D57288149E300D5279E /* FavouritesCell */,
+				B81CABE6285087A900E1632D /* FavouritesSections */,
 				B817F921282D23EC00957949 /* FavouritesViewController.swift */,
+				B81CABE2284F574000E1632D /* FavouritesPresenter.swift */,
+				B81CABE4284F575200E1632D /* FavouritesInteractor.swift */,
 			);
 			path = FavouritesScene;
 			sourceTree = "<group>";
@@ -433,6 +461,7 @@
 				B817F939282E2A4100957949 /* MainInteractor.swift in Sources */,
 				B8BD2943283B64AF00DE3235 /* SeasonCellViewModel.swift in Sources */,
 				B817F91C282CEF2100957949 /* TabBarController.swift in Sources */,
+				B81CABE3284F574000E1632D /* FavouritesPresenter.swift in Sources */,
 				B81341E0283CCE8D004BCEDC /* CreditCellViewModel.swift in Sources */,
 				B8D94A292845F51100CD22D6 /* Box.swift in Sources */,
 				B8EA95B3282B92190063C7DE /* NetworkManager.swift in Sources */,
@@ -446,6 +475,7 @@
 				B817F924282D241100957949 /* SearchViewController.swift in Sources */,
 				B817F92B282D3FBD00957949 /* TabBarButton.swift in Sources */,
 				B817F93D282E6EEF00957949 /* TV.swift in Sources */,
+				B81CABE5284F575200E1632D /* FavouritesInteractor.swift in Sources */,
 				B8C80A9528303BFF001F0591 /* MovieCollectionSection.swift in Sources */,
 				B8EA95B0282B91AA0063C7DE /* Film.swift in Sources */,
 				B8BD2948283B988700DE3235 /* EpisodeCellViewModel.swift in Sources */,
@@ -453,6 +483,7 @@
 				B817F937282E294C00957949 /* MainPresenter.swift in Sources */,
 				B817F927282D38FB00957949 /* UIView+Additions.swift in Sources */,
 				B8727BCE28351DF900FE7B37 /* Router.swift in Sources */,
+				B8961171285088BB004D5709 /* FavouritesHeaderView.swift in Sources */,
 				B8DF80632838E0680094011F /* ImageCell.swift in Sources */,
 				B8C80A9E283045CC001F0591 /* MovieInteractor.swift in Sources */,
 				B88CC16E2832336D0058168C /* TVPresenter.swift in Sources */,
@@ -462,6 +493,7 @@
 				B81341E4283CFCE2004BCEDC /* BaseCollectionViewCell.swift in Sources */,
 				B8BD2941283B640100DE3235 /* SeasonCell.swift in Sources */,
 				B8EA959D282B91840063C7DE /* SceneDelegate.swift in Sources */,
+				B89611732850A3D0004D5709 /* FavouritesSectionViewModel.swift in Sources */,
 				B817F929282D392600957949 /* UIStackView+Additions.swift in Sources */,
 				B817F943282E8FDF00957949 /* UImageView+Additions.swift in Sources */,
 				B8727BC82834ECC700FE7B37 /* DetailViewController.swift in Sources */,

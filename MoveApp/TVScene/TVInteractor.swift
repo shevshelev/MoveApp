@@ -19,11 +19,11 @@ final class TVInteractor: MainInteractorInputProtocol {
     
     func fetchObjects() {
         Task {
-            guard let latest = try? await networkManager.fetchMovie(for: .latestTv) as? Tv else { return }
-            guard let onAir = try? await networkManager.fetchMovie(for: .tvList(type: .onAir)) as? MovieResponse<Tv> else {  return }
-            guard let airingToday = try? await networkManager.fetchMovie(for: .tvList(type: .airingToday)) as? MovieResponse<Tv> else { return }
-            guard let popular = try? await networkManager.fetchMovie(for: .tvList(type: .popular)) as? MovieResponse<Tv> else { return }
-            guard let topRated = try? await networkManager.fetchMovie(for: .tvList(type: .topRated)) as? MovieResponse<Tv> else { return }
+            guard let latest = try? await networkManager.sendRequest(for: .latestTv) as? Tv else { return }
+            guard let onAir = try? await networkManager.sendRequest(for: .tvList(type: .onAir)) as? MovieResponse<Tv> else {  return }
+            guard let airingToday = try? await networkManager.sendRequest(for: .tvList(type: .airingToday)) as? MovieResponse<Tv> else { return }
+            guard let popular = try? await networkManager.sendRequest(for: .tvList(type: .popular)) as? MovieResponse<Tv> else { return }
+            guard let topRated = try? await networkManager.sendRequest(for: .tvList(type: .topRated)) as? MovieResponse<Tv> else { return }
             
             let dataStore = MainPresenterDataStore(
                 type: .tvShow,

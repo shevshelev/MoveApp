@@ -8,11 +8,7 @@
 import Foundation
 
 protocol NetworkManagerProtocol {
-    func fetchMovie(for type: NetworkRequestType) async throws -> Any
-    func setFavouriteStatus(for type: MovieType, _ id: Int, with status: Bool)
-    func setRate(for type: MovieType, _ id: Int, rate: Double)
-    func deleteRate(for type: MovieType, _ id: Int)
-    
+    func sendRequest(for type: NetworkRequestType) async throws -> Any?
 }
 
 enum NetworkRequestType {
@@ -24,6 +20,10 @@ enum NetworkRequestType {
     case latestMovie
     case latestTv
     case tvSeason(tvId: Int, seasonNumber: Int)
+    case setFavouriteStatus(type: MovieType, id: Int, status: Bool)
+    case setRate(type: MovieType, id: Int, rate: Double)
+    case deleteRate(type: MovieType, id: Int)
+    case favourites(type: MovieType)
 }
 enum MovieListType: String {
     case nowPlaying = "now_playing"
@@ -70,11 +70,13 @@ class NetworkManager: NetworkManagerProtocol {
     
     static let shared: NetworkManagerProtocol = NetworkManager()
     private let apiKey = "7764ef393c7ca0012a42f23871539e91"
+    private let sessionId = "aac8525364566796e72c6c5e7d5021d18c88336e"
+    private let accountId = "12385898"
     private init () {}
     
-    func fetchMovie(for type: NetworkRequestType) async throws -> Any {
-        let url = try await getURL(for: type)
-        let data = try await loadData(from: url)
+    func sendRequest(for type: NetworkRequestType) async throws -> Any? {
+        let request = try await getRequest(for: type)
+        let data = try await loadData(for: request)
         
         switch type {
         case .movieList, .movieSearch:
@@ -94,82 +96,30 @@ class NetworkManager: NetworkManagerProtocol {
             }
         case .tvSeason:
             return try await decodeJSON(from: data, in: Season.self)
-        }
-    }
-    
-    
-    
-    
-    func setFavouriteStatus(for type: MovieType, _ id: Int, with status: Bool) {
-        guard let url = URL(string: "https://api.themoviedb.org/3/account/12385898/favorite?api_key=7764ef393c7ca0012a42f23871539e91&session_id=aac8525364566796e72c6c5e7d5021d18c88336e") else { return }
-        var request = URLRequest(url: url)
-        let body: [String: AnyHashable] = [
-            "media_type" : type.rawValue,
-            "media_id" : id,
-            "favorite" : status
-        ]
-        request.httpMethod = "POST"
-        request.setValue("application/json;charset=utf-8", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: .fragmentsAllowed)
-        
-        let task = URLSession.shared.dataTask(with: request) { data, _, error in
-            guard let data = data, error == nil else { return }
-            do {
-                let response = try JSONSerialization.jsonObject(with: data, options: .fragmentsAllowed)
-                print(response)
-            } catch {
-                print(error)
+        case .setFavouriteStatus, .setRate, .deleteRate:
+            let response = try JSONSerialization.jsonObject(with: data, options: .fragmentsAllowed)
+            print(response)
+            return nil
+        case .favourites(let type):
+            switch type {
+            case .film:
+                return try await decodeJSON(from: data, in: MovieResponse<Film>.self)
+            case .tv:
+                return try await decodeJSON(from: data, in: MovieResponse<Tv>.self)
             }
         }
-        task.resume()
     }
-    
-    func setRate(for type: MovieType, _ id: Int, rate: Double) {
-        guard let url = URL(string: "https://api.themoviedb.org/3/\(type.rawValue)/\(id)/rating?api_key=7764ef393c7ca0012a42f23871539e91&session_id=aac8525364566796e72c6c5e7d5021d18c88336e") else { return }
-        var request = URLRequest(url: url)
-        let body: [String: AnyHashable] = [
-            "value" : rate
-        ]
-        request.httpMethod = "POST"
-        request.setValue("application/json;charset=utf-8", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: .fragmentsAllowed)
-        
-        let task = URLSession.shared.dataTask(with: request) { data, _, error in
-            guard let data = data, error == nil else { return }
-            do {
-                let response = try JSONSerialization.jsonObject(with: data, options: .fragmentsAllowed)
-                print(response)
-            } catch {
-                print(error)
-            }
-        }
-        task.resume()
-    }
-    
-    func deleteRate(for type: MovieType, _ id: Int) {
-        guard let url = URL(string: "https://api.themoviedb.org/3/\(type.rawValue)/\(id)/rating?api_key=7764ef393c7ca0012a42f23871539e91&session_id=aac8525364566796e72c6c5e7d5021d18c88336e") else { return }
-        var request = URLRequest(url: url)
-        request.httpMethod = "DELETE"
-        request.setValue("application/json;charset=utf-8", forHTTPHeaderField: "Content-Type")
-        let task = URLSession.shared.dataTask(with: request) { data, _, error in
-            guard let data = data, error == nil else { return }
-            do {
-                let response = try JSONSerialization.jsonObject(with: data, options: .fragmentsAllowed)
-                print(response)
-            } catch {
-                print(error)
-            }
-        }
-        task.resume()
-    }
-    
-    
-    
-    
-    
     
     private func loadData(from url: URL) async throws -> Data {
         let (data, response) = try await URLSession.shared.data(from: url)
+        guard let httpResponse = response as? HTTPURLResponse, 200..<300 ~= httpResponse.statusCode else {
+            throw NetworkError.invalidResponse
+        }
+        return data
+    }
+    
+    private func loadData(for request: URLRequest) async throws -> Data {
+        let (data, response) = try await URLSession.shared.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse, 200..<300 ~= httpResponse.statusCode else {
             throw NetworkError.invalidResponse
         }
@@ -206,6 +156,12 @@ class NetworkManager: NetworkManagerProtocol {
             components.path = "/3/tv/latest"
         case .tvSeason(let (tvId, seasonNumber)):
             components.path = "/3/tv/\(tvId)/season/\(seasonNumber)"
+        case .setFavouriteStatus:
+            components.path = "/3/account/\(accountId)/favorite"
+        case .setRate(let (type, id, _)), .deleteRate(let (type, id)):
+            components.path = "/3/\(type.rawValue)/\(id)/rating"
+        case .favourites(let type):
+            components.path = "/3/account/\(accountId)/favorite/\(type == .film ? "movies" : "tv")"
         }
         components.queryItems = params.map { URLQueryItem(name: $0, value: $1) }
         guard let url = components.url else { throw NetworkError.invalidURL }
@@ -220,15 +176,49 @@ class NetworkManager: NetworkManagerProtocol {
         parameters["include_adult"] = "true"
         parameters["region"] = Locale.current.regionCode
         parameters["language"] = systemLanguage
+        parameters["session_id"] = sessionId
         switch type {
-        case .movieList, .tvList, .latestMovie, .latestTv, .tvSeason:
+        case .movieList, .tvList, .latestMovie, .latestTv, .tvSeason,
+                .setFavouriteStatus, .setRate, .deleteRate:
             break
         case .single:
             parameters["append_to_response"] = "videos,images,credits"
             parameters["include_image_language"] = "\(systemLanguage?.prefix(2) ?? ""),en,null"
         case .movieSearch(let query), .tvSearch(let query):
             parameters["query"] = query
+        case .favourites:
+            parameters["sort_by"] = "created_at.desc"
         }
         return parameters
+    }
+    
+    private func getRequest(for type: NetworkRequestType) async throws -> URLRequest {
+        let url = try await getURL(for: type)
+        var request = URLRequest(url: url)
+        var body: [String: AnyHashable] = [:]
+        var method: String
+        request.setValue("application/json;charset=utf-8", forHTTPHeaderField: "Content-Type")
+        switch type {
+        case .movieList, .tvList, .movieSearch, .tvSearch, .single, .latestMovie, .latestTv, .tvSeason, .favourites:
+            method = "GET"
+        case .setFavouriteStatus(let (type, id, status)):
+            method = "POST"
+            body = [
+                "media_type" : type.rawValue,
+                "media_id" : id,
+                "favorite" : status
+            ]
+            request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: .fragmentsAllowed)
+        case .setRate(let (_, _, rate)):
+            method = "POST"
+            body = [
+                "value" : rate
+            ]
+            request.httpBody = try? JSONSerialization.data(withJSONObject: body, options: .fragmentsAllowed)
+        case .deleteRate:
+            method = "DELETE"
+        }
+        request.httpMethod = method
+        return request
     }
 }

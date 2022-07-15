@@ -172,9 +172,13 @@ extension DetailPresenter: DetailInteractorOutputProtocol {
         }
     }
     func receiveFavouriteStatus(with status: Bool) {
-        view.setFavouriteButtonTitle(with: status)
+        DispatchQueue.main.async {
+            self.view.setFavouriteButtonTitle(with: status)
+        }
     }
     func receiveRate(with rate: Double) {
-        view.setRateButtonTitle(with: rate)
+        DispatchQueue.main.async {
+            self.view.setRateButtonTitle(with: rate)
+        }
     }
 }

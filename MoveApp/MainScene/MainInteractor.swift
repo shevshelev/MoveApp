@@ -29,12 +29,12 @@ final class MainInteractor: MainInteractorInputProtocol {
     
     func fetchObjects() {
         Task {
-            guard let nowPlayingFilms = try? await networkManager.fetchMovie(for:.movieList(type: .nowPlaying)) as? MovieResponse<Film> else { return }
-            guard let topRatedFilms = try? await networkManager.fetchMovie(for: .movieList(type: .topRated)) as? MovieResponse<Film> else { return }
-            guard let popularFilms = try? await networkManager.fetchMovie(for: .movieList(type: .popular)) as? MovieResponse<Film> else { return }
-            guard let nowPlayingTv = try? await networkManager.fetchMovie(for: .tvList(type: .onAir)) as? MovieResponse<Tv> else { return }
-            guard let topRatedTv = try? await networkManager.fetchMovie(for: .tvList(type: .topRated)) as? MovieResponse<Tv> else { return }
-            guard let popularTv = try? await networkManager.fetchMovie(for: .tvList(type: .popular)) as? MovieResponse<Tv> else { return }
+            guard let nowPlayingFilms = try? await networkManager.sendRequest(for:.movieList(type: .nowPlaying)) as? MovieResponse<Film> else { return }
+            guard let topRatedFilms = try? await networkManager.sendRequest(for: .movieList(type: .topRated)) as? MovieResponse<Film> else { return }
+            guard let popularFilms = try? await networkManager.sendRequest(for: .movieList(type: .popular)) as? MovieResponse<Film> else { return }
+            guard let nowPlayingTv = try? await networkManager.sendRequest(for: .tvList(type: .onAir)) as? MovieResponse<Tv> else { return }
+            guard let topRatedTv = try? await networkManager.sendRequest(for: .tvList(type: .topRated)) as? MovieResponse<Tv> else { return }
+            guard let popularTv = try? await networkManager.sendRequest(for: .tvList(type: .popular)) as? MovieResponse<Tv> else { return }
             
             let filmsDataStore = MainPresenterDataStore(
                 type: .film,
@@ -48,8 +48,9 @@ final class MainInteractor: MainInteractorInputProtocol {
                 topRated: topRatedTv.results,
                 popular: popularTv.results
             )
-            
-            presenter.objectsDidReceive!(with: [filmsDataStore, tvDataStore])
+            DispatchQueue.main.async {
+                self.presenter.objectsDidReceive!(with: [filmsDataStore, tvDataStore])
+            }
             
         }
     }
